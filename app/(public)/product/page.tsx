@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import React from "react";
 
 // Data Katalog Produk
@@ -62,7 +62,7 @@ export default function ProductPage() {
   } as const;
 
   // Animasi dinamis: Masuk dari kiri atau kanan tergantung indeks baris
-  const slideInCard = (idx: number) => ({
+  const slideInCard = (idx: number): Variants => ({
     hidden: { opacity: 0, x: idx % 2 === 1 ? 50 : -50 },
     visible: { 
       opacity: 1, 
