@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  sku         String   @unique
+  description String
+  rfqs        Rfq[]
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Rfq {
+  id          String    @id @default(uuid())
+  companyName String
+  email       String
+  country     String
+  quantity    Int
+  notes       String?
+  status      RfqStatus @default(PENDING)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  invoiceNumber  String        @unique
+  buyerCompany   String
+  destination    String
+  totalQuantity  Int
+  currentStatus  OrderStatus   @default(PRODUCTION)
+  productId      String
+  product        Product       @relation(fields: [productId], references: [id])
+  logs           StatusLog[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model StatusLog {
+  id          String      @id @default(uuid())
+  status      OrderStatus
+  description String      // Misal: "Kontainer telah dimuat di Pelabuhan Tanjung Priok"
+  createdAt   DateTime    @default(now())
+  orderId     String
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+enum RfqStatus {
+  PENDING
+  REVIEWED
+  QUOTED
+  REJECTED
+}
+
+enum OrderStatus {
+  PRODUCTION
+  QUALITY_CHECK
+  PORT_ORIGIN
+  ON_SAILING
+  PORT_DESTINATION
+  DELIVERED
+}
