@@ -1,71 +1,62 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-model Product {
-  id          String   @id @default(uuid())
-  name        String
-  sku         String   @unique
+// Data Induk Karyawan
+model Employee {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  phone     String?
+  createdAt DateTime  @default(now())
+  workLogs  WorkLog[]
+}
+
+// Data Induk Jenis Karung & Stok
+model BagType {
+  id           String        @id @default(cuid())
+  sku          String        @unique // Contoh: "PP-50KG-SUPER"
+  name         String
+  wagePerPiece Int           // Upah buruh per lembar karung
+  currentStock Int           @default(0)
+  workLogs     WorkLog[]
+  sales        Transaction[]
+  searchLogs   SearchLog[]
+}
+
+// Log Kerja Harian (Di-input via WhatsApp)
+model WorkLog {
+  id         String   @id @default(cuid())
+  employeeId String
+  bagTypeId  String
+  quantity   Int      // Jumlah karung yang diselesaikan
+  date       DateTime @default(now())
+  
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  bagType    BagType  @relation(fields: [bagTypeId], references: [id], onDelete: Cascade)
+}
+
+// Arus Kas & Penjualan (Untuk Laporan Keuangan & Tren Jual)
+model Transaction {
+  id          String   @id @default(cuid())
+  type        String   // "INCOME" (Penjualan) atau "EXPENSE" (Operasional/Beli Bahan)
+  amount      Int
   description String
-  rfqs        Rfq[]
-  orders      Order[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  bagTypeId   String?  // Nullable jika pengeluaran non-karung (misal: listrik)
+  quantity    Int      @default(0) // Jumlah karung terjual
+  date        DateTime @default(now())
+
+  bagType     BagType? @relation(fields: [bagTypeId], references: [id])
 }
 
-model Rfq {
-  id          String    @id @default(uuid())
-  companyName String
-  email       String
-  country     String
-  quantity    Int
-  notes       String?
-  status      RfqStatus @default(PENDING)
-  productId   String
-  product     Product   @relation(fields: [productId], references: [id])
-  createdAt   DateTime  @default(now())
-}
+// Log Pencarian Karung (Dari Form RFQ Website untuk Tren Pasar)
+model SearchLog {
+  id        String   @id @default(cuid())
+  bagTypeId String
+  createdAt DateTime @default(now())
 
-model Order {
-  id             String        @id @default(uuid())
-  invoiceNumber  String        @unique
-  buyerCompany   String
-  destination    String
-  totalQuantity  Int
-  currentStatus  OrderStatus   @default(PRODUCTION)
-  productId      String
-  product        Product       @relation(fields: [productId], references: [id])
-  logs           StatusLog[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-}
-
-model StatusLog {
-  id          String      @id @default(uuid())
-  status      OrderStatus
-  description String      // Misal: "Kontainer telah dimuat di Pelabuhan Tanjung Priok"
-  createdAt   DateTime    @default(now())
-  orderId     String
-  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
-}
-
-enum RfqStatus {
-  PENDING
-  REVIEWED
-  QUOTED
-  REJECTED
-}
-
-enum OrderStatus {
-  PRODUCTION
-  QUALITY_CHECK
-  PORT_ORIGIN
-  ON_SAILING
-  PORT_DESTINATION
-  DELIVERED
+  bagType   BagType  @relation(fields: [bagTypeId], references: [id])
 }
