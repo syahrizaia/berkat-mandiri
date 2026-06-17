@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         })
       ]);
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, message: "Data berhasil dicatat" });
     }
 
     return NextResponse.json({ success: false, message: "Aksi tidak dikenali" });
