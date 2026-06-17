@@ -6,6 +6,19 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// 1. ENUM BARU: Mengunci jenis pekerjaan borongan
+enum TaskType {
+  MENCUCI
+  MELIPAT
+  MENJAHIT
+}
+
+// 2. ENUM BARU: Mengunci tipe arus kas
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
 // Data Induk Karyawan
 model Employee {
   id        String    @id @default(cuid())
@@ -20,8 +33,14 @@ model BagType {
   id           String        @id @default(cuid())
   sku          String        @unique // Contoh: "PP-50KG-SUPER"
   name         String
-  wagePerPiece Int           // Upah buruh per lembar karung
   currentStock Int           @default(0)
+  
+  // TAMBAHAN: Tarif borongan dipecah spesifik per aktivitas
+  wageMencuci  Int           @default(0)
+  wageMelipat  Int           @default(0)
+  wageMenjahit Int           @default(0)
+  wagePerPiece Int           @default(0) // Tetap dipertahankan sebagai tarif dasar/fallback
+
   workLogs     WorkLog[]
   sales        Transaction[]
   searchLogs   SearchLog[]
@@ -35,21 +54,32 @@ model WorkLog {
   quantity   Int      // Jumlah karung yang diselesaikan
   date       DateTime @default(now())
   
+  // TAMBAHAN: Kolom untuk merekam jenis pekerjaan yang dilakukan
+  task       TaskType @default(MENCUCI)
+
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   bagType    BagType  @relation(fields: [bagTypeId], references: [id], onDelete: Cascade)
+
+  // OPTIMASI: Indexing agar query grafik & penggajian di dashboard Neon.tech super cepat
+  @@index([employeeId])
+  @@index([bagTypeId])
+  @@index([date])
 }
 
 // Arus Kas & Penjualan (Untuk Laporan Keuangan & Tren Jual)
 model Transaction {
-  id          String   @id @default(cuid())
-  type        String   // "INCOME" (Penjualan) atau "EXPENSE" (Operasional/Beli Bahan)
+  id          String          @id @default(cuid())
+  type        TransactionType // Menggunakan ENUM agar tidak typo INCOME/EXPENSE
   amount      Int
   description String
-  bagTypeId   String?  // Nullable jika pengeluaran non-karung (misal: listrik)
-  quantity    Int      @default(0) // Jumlah karung terjual
-  date        DateTime @default(now())
+  bagTypeId   String?         // Nullable jika pengeluaran non-karung (misal: listrik)
+  quantity    Int             @default(0) // Jumlah karung terjual
+  date        DateTime        @default(now())
 
-  bagType     BagType? @relation(fields: [bagTypeId], references: [id])
+  bagType     BagType?        @relation(fields: [bagTypeId], references: [id])
+
+  @@index([bagTypeId])
+  @@index([date])
 }
 
 // Log Pencarian Karung (Dari Form RFQ Website untuk Tren Pasar)
@@ -59,4 +89,6 @@ model SearchLog {
   createdAt DateTime @default(now())
 
   bagType   BagType  @relation(fields: [bagTypeId], references: [id])
+
+  @@index([bagTypeId])
 }
