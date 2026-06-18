@@ -13,6 +13,8 @@ import {
   ShieldCheck, 
   Cpu 
 } from "lucide-react";
+import 'katex/dist/katex.min.css';
+import { InlineMath } from 'react-katex';
 
 interface StockPrediction {
   id: string;
@@ -189,7 +191,7 @@ export default function StockPredictionBlock({ predictions }: StockPredictionBlo
                   <div>
                     <h5 className="text-sm font-bold text-slate-900">Langkah 3: Pencarian Pola Tren Tren (Linear Regression)</h5>
                     <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                      Algoritma <span className="font-bold">Linear Regression</span> dari library Scikit-Learn membaca sebaran riwayat data penjualan untuk menentukan tingkat kemiringan grafik penjualan (apakah permintaan pasar condong naik atau turun). Rumus matematis yang terbentuk di memori: $$Y = mX + c$$
+                      Algoritma <span className="font-bold">Linear Regression</span> dari library Scikit-Learn membaca sebaran riwayat data penjualan untuk menentukan tingkat kemiringan grafik penjualan (apakah permintaan pasar condong naik atau turun). Rumus matematis yang terbentuk di memori: <InlineMath math="Y = mX + c" />
                     </p>
                   </div>
                 </div>
