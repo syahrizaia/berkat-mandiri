@@ -1,6 +1,7 @@
 "use client";
 
-import { Edit2, Trash2, MoreVertical } from "lucide-react";
+import { Edit2, Trash2, Info } from "lucide-react";
+import Link from "next/link";
 
 export default function EmployeeActions({ id }: { id: string }) {
   const handleEdit = () => {
@@ -17,6 +18,12 @@ export default function EmployeeActions({ id }: { id: string }) {
 
   return (
     <div className="flex items-center justify-end gap-1">
+      <Link
+        href={`/employees/${id}`}
+        className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-600 transition"
+      >
+        <Info className="w-4 h-4" />
+      </Link>
       <button 
         onClick={handleEdit}
         className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-blue-600 transition"

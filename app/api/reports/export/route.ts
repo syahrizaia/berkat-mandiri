@@ -3,33 +3,63 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import * as XLSX from "xlsx";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    // 1. AMBIL DATA LOGS
+    // 1. AMBIL DATA LOGS (Disesuaikan dengan relasi & field baru)
     const logs = await prisma.workLog.findMany({
-      include: { employee: true, bagType: true }
+      include: { 
+        employee: true, 
+        bagType: true 
+      }
     });
 
     const salarySummary: Record<string, { nama: string; totalKarung: number; totalGaji: number }> = {};
     
-    // Menggunakan : any agar TypeScript tidak protes mencari tipe data relasi
     logs.forEach((log: any) => {
       if (!salarySummary[log.employee.name]) {
-        salarySummary[log.employee.name] = { nama: log.employee.name, totalKarung: 0, totalGaji: 0 };
+        salarySummary[log.employee.name] = { 
+          nama: log.employee.name, 
+          totalKarung: 0, 
+          totalGaji: 0 
+        };
       }
+
+      // Penyesuaian Neon.tech: Hitung tarif berdasarkan tipe tugas (TaskType)
+      let wagePerPiece = log.bagType.wagePerPiece; // Fallback jika tidak ada yang cocok
+      
+      switch (log.task) {
+        case "MENCUCI":
+          wagePerPiece = log.bagType.wageMencuci;
+          break;
+        case "MELIPAT":
+          wagePerPiece = log.bagType.wageMelipat;
+          break;
+        case "MENJAHIT":
+          wagePerPiece = log.bagType.wageMenjahit;
+          break;
+      }
+
+      // Akumulasikan total produksi lembar dan total gaji berdasarkan jenis tugas
       salarySummary[log.employee.name].totalKarung += log.quantity;
-      salarySummary[log.employee.name].totalGaji += log.quantity * log.bagType.wagePerPiece;
+      salarySummary[log.employee.name].totalGaji += log.quantity * wagePerPiece;
     });
 
-    // 2. ANALISIS TREN & REKOMENDASI RESTOCK
+    // 2. ANALISIS TREN & REKOMENDASI RESTOCK (Disesuaikan dengan model Transaction baru)
     const bags = await prisma.bagType.findMany({
-      include: { sales: true }
+      include: { 
+        // Mengambil data sales dari model Transaction yang bertipe INCOME
+        sales: {
+          where: {
+            type: "INCOME"
+          }
+        } 
+      }
     });
 
-    // Menggunakan : any juga di sini
     const inventoryReport = bags.map((bag: any) => {
       const totalTerjual = bag.sales.reduce((sum: number, s: any) => sum + s.quantity, 0);
       
+      // Rumus Safety Stock & Restock
       const avgMonthlySales = Math.ceil(totalTerjual / 3) || 100; 
       const safetyStock = Math.ceil(avgMonthlySales * 1.5);
       const saranRestock = safetyStock > bag.currentStock ? (safetyStock - bag.currentStock) : 0;

@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python Virtual Environment & Caches
+predict-service/.venv/
+predict-service/venv/
+predict-service/__pycache__/
+predict-service/*.pyc
+.pytest_cache/

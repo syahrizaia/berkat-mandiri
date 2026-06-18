@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import StockPredictionBlock from "@/components/StockPredictionBlock";
 import { useState, useEffect } from "react";
 import {
   BarChart,
@@ -117,40 +118,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* BLOK 1: PREDIKSI STOK BULAN DEPAN */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          📦 Prediksi Batas Stok Karung (Bulan Depan)
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {dashboardData?.stockPredictions.map((stock) => (
-            <div key={stock.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md uppercase">
-                    {stock.sku}
-                  </span>
-                  <h4 className="font-semibold text-slate-800 mt-2 text-sm truncate">{stock.name}</h4>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-center">
-                <div>
-                  <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Stok Fisik</p>
-                  <p className="text-lg font-bold text-slate-800">
-                    {stock.currentStock.toLocaleString()} <span className="text-xs font-normal text-slate-500">lbr</span>
-                  </p>
-                </div>
-                <div className="bg-amber-50/50 rounded-lg py-1">
-                  <p className="text-[10px] text-amber-700 font-bold uppercase tracking-wider">Prediksi Berjalan</p>
-                  <p className="text-lg font-bold text-amber-600">
-                    {stock.predictedNextMonth.toLocaleString()} <span className="text-xs font-normal text-amber-500">lbr</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      <StockPredictionBlock predictions={dashboardData?.stockPredictions} />
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* BLOK 2: GRAFIK TREN VOLUME */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
@@ -189,7 +158,7 @@ export default function AdminDashboard() {
           <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 mt-4">
             <span className="text-xs font-semibold text-slate-700 block mb-1">💡 Sistem Upah Multi-Faktor:</span>
             <p className="text-[11px] text-slate-500 leading-normal">
-              Estimasi gaji dihitung otomatis secara kumulatif berdasarkan kombinasi **Jenis Pekerjaan** dikali tarif spesifik masing-masing jenis karung.
+              Estimasi gaji dihitung otomatis secara kumulatif berdasarkan kombinasi <span className="font-bold">Jenis Pekerjaan</span> dikali tarif spesifik masing-masing jenis karung.
             </p>
           </div>
         </div>

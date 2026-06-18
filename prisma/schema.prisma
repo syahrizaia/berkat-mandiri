@@ -6,20 +6,38 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// 1. ENUM BARU: Mengunci jenis pekerjaan borongan
+// ==========================================
+// ENUMS & LOOKUPS
+// ==========================================
+
 enum TaskType {
   MENCUCI
   MELIPAT
   MENJAHIT
 }
 
-// 2. ENUM BARU: Mengunci tipe arus kas
 enum TransactionType {
   INCOME
   EXPENSE
 }
 
-// Data Induk Karyawan
+// TAMBAHAN: Mengunci status pembayaran penjualan
+enum PaymentStatus {
+  LUNAS
+  PENDING
+}
+
+// TAMBAHAN: Mengunci status logistik kurir armada
+enum DeliveryStatus {
+  DIPROSES
+  DIKIRIM
+  DITERIMA
+}
+
+// ==========================================
+// DATA INDUK (MASTER DATA)
+// ==========================================
+
 model Employee {
   id        String    @id @default(cuid())
   name      String    @unique
@@ -28,61 +46,44 @@ model Employee {
   workLogs  WorkLog[]
 }
 
-// Data Induk Jenis Karung & Stok
 model BagType {
   id           String        @id @default(cuid())
   sku          String        @unique // Contoh: "PP-50KG-SUPER"
   name         String
   currentStock Int           @default(0)
   
-  // TAMBAHAN: Tarif borongan dipecah spesifik per aktivitas
+  // Tarif borongan per aktivitas
   wageMencuci  Int           @default(0)
   wageMelipat  Int           @default(0)
   wageMenjahit Int           @default(0)
-  wagePerPiece Int           @default(0) // Tetap dipertahankan sebagai tarif dasar/fallback
+  wagePerPiece Int           @default(0) // Fallback tarif dasar
 
   workLogs     WorkLog[]
-  sales        Transaction[]
+  transactions Transaction[]
   searchLogs   SearchLog[]
+  sales        Sale[]        // TAMBAHAN: Relasi ke tabel transaksi penjualan baru
 }
 
-// Log Kerja Harian (Di-input via WhatsApp)
+// ==========================================
+// LOG OPERASIONAL PABRIK & PASAR
+// ==========================================
+
 model WorkLog {
   id         String   @id @default(cuid())
   employeeId String
   bagTypeId  String
   quantity   Int      // Jumlah karung yang diselesaikan
   date       DateTime @default(now())
-  
-  // TAMBAHAN: Kolom untuk merekam jenis pekerjaan yang dilakukan
   task       TaskType @default(MENCUCI)
 
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   bagType    BagType  @relation(fields: [bagTypeId], references: [id], onDelete: Cascade)
 
-  // OPTIMASI: Indexing agar query grafik & penggajian di dashboard Neon.tech super cepat
   @@index([employeeId])
   @@index([bagTypeId])
   @@index([date])
 }
 
-// Arus Kas & Penjualan (Untuk Laporan Keuangan & Tren Jual)
-model Transaction {
-  id          String          @id @default(cuid())
-  type        TransactionType // Menggunakan ENUM agar tidak typo INCOME/EXPENSE
-  amount      Int
-  description String
-  bagTypeId   String?         // Nullable jika pengeluaran non-karung (misal: listrik)
-  quantity    Int             @default(0) // Jumlah karung terjual
-  date        DateTime        @default(now())
-
-  bagType     BagType?        @relation(fields: [bagTypeId], references: [id])
-
-  @@index([bagTypeId])
-  @@index([date])
-}
-
-// Log Pencarian Karung (Dari Form RFQ Website untuk Tren Pasar)
 model SearchLog {
   id        String   @id @default(cuid())
   bagTypeId String
@@ -91,4 +92,69 @@ model SearchLog {
   bagType   BagType  @relation(fields: [bagTypeId], references: [id])
 
   @@index([bagTypeId])
+}
+
+// ==========================================
+// MODUL BARU: PENJUALAN & SURAT JALAN (OTOMATISASI)
+// ==========================================
+
+// TABEL BARU: Menampung data invoice penjualan terperinci
+model Sale {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique // Contoh: "SL-9823"
+  date          DateTime      @default(now())
+  customerName  String        // Nama pembeli / PT tujuan
+  bagTypeId     String
+  quantity      Int           // Jumlah lembar karung terjual
+  pricePerPiece Int           // Harga satuan karung
+  totalAmount   Int           // quantity * pricePerPiece
+  paymentStatus PaymentStatus @default(PENDING)
+
+  // Relasi master karung
+  bagType       BagType       @relation(fields: [bagTypeId], references: [id])
+  
+  // Relasi Otomatisasi (1-to-1) ke Surat Jalan & Buku Kas Keuangan
+  delivery      Delivery?
+  transaction   Transaction?
+
+  @@index([bagTypeId])
+  @@index([date])
+}
+
+// TABEL BARU: Menampung data kurir armada (Manifes Surat Jalan)
+model Delivery {
+  id              String         @id @default(cuid())
+  suratJalanNo    String         @unique // Contoh: "SJ-SL-9823"
+  saleId          String         @unique // Kunci 1-to-1 ke data Penjualan
+  driverName      String?
+  plateNumber     String?
+  deliveryAddress String?        // Alamat lengkap bongkar muat gudang customer
+  status          DeliveryStatus @default(DIPROSES)
+  updatedAt       DateTime       @updatedAt
+
+  // Relasi cascade: Jika data penjualan dihapus, data kurir otomatis ikut terhapus
+  sale            Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+
+// ==========================================
+// ARUS KAS KEUANGAN (LEDGER)
+// ==========================================
+
+model Transaction {
+  id          String          @id @default(cuid())
+  type        TransactionType 
+  amount      Int
+  description String
+  bagTypeId   String?         // Nullable jika pengeluaran operasional non-karung
+  quantity    Int             @default(0) 
+  date        DateTime        @default(now())
+
+  // TAMBAHAN: Kunci relasi opsional jika transaksi ini bersumber dari penjualan karung murni
+  saleId      String?         @unique
+  sale        Sale?           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  bagType     BagType?        @relation(fields: [bagTypeId], references: [id])
+
+  @@index([bagTypeId])
+  @@index([date])
 }

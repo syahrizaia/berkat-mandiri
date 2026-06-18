@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, Package, Users, FileText, 
-  LogOut, Menu, X, Building2 
+  LogOut, Menu, X, Building2, 
 } from "lucide-react";
 
 export default function SidebarPrivate() {
@@ -16,6 +16,7 @@ export default function SidebarPrivate() {
 
   const navLinks = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Penjualan", href: "/sales", icon: FileText },
     { name: "Stok Barang", href: "/inventory", icon: Package },
     { name: "Karyawan", href: "/employees", icon: Users },
     { name: "Laporan", href: "/reports", icon: FileText },
