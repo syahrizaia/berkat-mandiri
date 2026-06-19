@@ -2,38 +2,50 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// METODE PUT: UNTUK UPDATE DATA
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+// UPDATE STOK BARANG (PUT)
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> } // 1. Ubah menjadi Promise sesuai aturan Next.js 16
+) {
   try {
+    // 2. Wajib gunakan await untuk mengambil id
+    const { id } = await params;
     const body = await request.json();
-    const { sku, name, currentStock, wageMencuci, wageMelipat, wageMenjahit, wagePerPiece } = body;
 
-    const updatedBag = await prisma.bagType.update({
-      where: { id: params.id },
+    // Sesuaikan nama model database kamu (misal: inventory / inventoryItem / bagType)
+    const updatedInventory = await prisma.bagType.update({
+      where: { id },
       data: {
-        sku,
-        name,
-        currentStock: Number(currentStock),
-        wageMencuci: Number(wageMencuci),
-        wageMelipat: Number(wageMelipat),
-        wageMenjahit: Number(wageMenjahit),
-        wagePerPiece: Number(wagePerPiece)
-      }
+        name: body.name,
+        sku: body.sku,
+        currentStock: Number(body.currentStock),
+        wageMencuci: Number(body.wageMencuci),
+        wageMelipat: Number(body.wageMelipat),
+        wageMenjahit: Number(body.wageMenjahit),
+        wagePerPiece: Number(body.wagePerPiece),
+      },
     });
 
-    return NextResponse.json({ success: true, data: updatedBag });
+    return NextResponse.json({ success: true, data: updatedInventory });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-// METODE DELETE: UNTUK HAPUS DATA
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+// HAPUS STOK BARANG (DELETE)
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> } // 1. Ubah menjadi Promise
+) {
   try {
+    // 2. Wajib gunakan await untuk mengambil id
+    const { id } = await params;
+
     await prisma.bagType.delete({
-      where: { id: params.id }
+      where: { id },
     });
-    return NextResponse.json({ success: true, message: "Item berhasil dihapus dari sistem." });
+
+    return NextResponse.json({ success: true, message: "Barang berhasil dihapus." });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
