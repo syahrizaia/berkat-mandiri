@@ -2,11 +2,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// ==========================================
+// HANDLE GET REQUEST
+// ==========================================
 export async function GET(request: NextRequest) {
   try {
     // 0. AMBIL PARAMETER TIMEFRAME DARI URL
     const { searchParams } = new URL(request.url);
-    const timeframe = searchParams.get("timeframe") || "bulan"; // fallback ke 'bulan'
+    const timeframe = searchParams.get("timeframe") || "bulan";
 
     const sekarang = new Date();
     const tahunSekarang = sekarang.getFullYear();
@@ -30,7 +33,6 @@ export async function GET(request: NextRequest) {
     const awalBulanIni = new Date(tahunSekarang, bulanSekarangRaw, 1);
     const awalTahunIni = new Date(tahunSekarang, 0, 1);
 
-    // Tentukan batasan waktu berdasarkan parameter timeframe yang dikirim frontend
     let batasWaktuSales = awalBulanIni;
     if (timeframe === "hari") batasWaktuSales = awalHariIni;
     else if (timeframe === "pekan") batasWaktuSales = awalPekanIni;
@@ -205,7 +207,7 @@ export async function GET(request: NextRequest) {
     allTransactions.forEach((tx) => {
       const txDate = new Date(tx.date);
       const isIncome = tx.type === "INCOME";
-      const amount = Number(tx.amount) || 0; // Mengamankan tipe data Decimal Prisma
+      const amount = Number(tx.amount) || 0;
 
       if (txDate >= awalHariIni) {
         if (isIncome) financeSummary.hari.income += amount;
@@ -226,23 +228,59 @@ export async function GET(request: NextRequest) {
     });
 
     // ==========================================
-    // 5. AGREGASI PENJUALAN & PIUTANG (SALES) - DINAMIS & SUPER AMAN
+    // 5. AGREGASI PENJUALAN & PIUTANG (SALES) - VERSI FIX 100% AMAN
     // ==========================================
     let allSales: any[] = [];
-    
-    // Deteksi otomatis penamaan model di Prisma Client Anda (Sale, sales, atau sale)
-    const salesModel = (prisma as any).sale || (prisma as any).Sale || (prisma as any).sales || (prisma as any).Sales;
+    const isSaleModel = (prisma as any).sale || (prisma as any).Sale || (prisma as any).sales || (prisma as any).Sales;
+    const isDeliveryModel = (prisma as any).delivery || (prisma as any).Delivery || (prisma as any).deliveries || (prisma as any).Deliveries;
 
-    if (salesModel) {
+    if (isSaleModel) {
       try {
-        allSales = await salesModel.findMany({
-          where: { date: { gte: batasWaktuSales } }
+        allSales = await isSaleModel.findMany({
+          where: { date: { gte: batasWaktuSales } },
+          orderBy: { date: "desc" },
+          include: {
+            bagType: true, 
+            ...(isDeliveryModel ? { delivery: true } : {})
+          }
         });
       } catch (e) {
-        console.error("Gagal mengeksekusi query findMany pada model Sales:", e);
+        console.error("Gagal mengeksekusi query findMany dengan include, mencoba include standar:", e);
+        // Tetap usahakan bawa bagType di dalam catch block
+        allSales = await isSaleModel.findMany({
+          where: { date: { gte: batasWaktuSales } },
+          orderBy: { date: "desc" },
+          include: { bagType: true } 
+        });
       }
-    } else {
-      console.warn("Peringatan: Model 'Sale' / 'sales' tidak ditemukan di instance Prisma Anda. Menggunakan array kosong.");
+    } else if ((prisma as any).transaction) {
+      // Fallback jika menggunakan tabel tunggal Transaction
+      const txSales = await (prisma as any).transaction.findMany({
+        where: { type: "INCOME", date: { gte: batasWaktuSales } },
+        orderBy: { date: "desc" },
+        include: { bagType: true } // Mengambil data karung dari relasi transaksi
+      });
+      
+      allSales = txSales.map((t: any) => ({
+        id: t.id,
+        invoiceNumber: t.description?.includes(" - ") ? t.description.split(" - ")[0] : "INV-GEN",
+        customerName: t.description?.includes(" - ") ? t.description.split(" - ")[1] : (t.description || "Pelanggan"),
+        bagTypeId: t.bagTypeId || "",
+        bagType: t.bagType || { name: "Umum/Pemasukan Kas", sku: "GENERIC" }, // FIX: Menyediakan objek bagType agar frontend tidak undefined
+        quantity: t.description?.match(/\((\d+)\s*lbr\)/)?.[1] ? parseInt(t.description.match(/\((\d+)\s*lbr\)/)[1]) : 0,
+        pricePerPiece: 0,
+        totalAmount: Number(t.amount) || 0,
+        paymentStatus: "LUNAS",
+        date: t.date,
+        // FIX: Menyediakan objek delivery tiruan agar DeliveryTable punya data untuk dirender
+        delivery: {
+          suratJalanNo: `SJ-${t.id.slice(0, 8).toUpperCase()}`,
+          driverName: "Kurir Internal",
+          plateNumber: "-",
+          deliveryAddress: "Ambil di Gudang",
+          status: "DITERIMA"
+        }
+      }));
     }
 
     const salesSummary = {
@@ -256,9 +294,9 @@ export async function GET(request: NextRequest) {
     allSales.forEach((sale: any) => {
       if (!sale) return;
       
-      const totalAmount = Number(sale.totalAmount) || 0; 
+      const totalAmount = Number(sale.totalAmount || sale.amount) || 0; 
       const quantity = Number(sale.quantity) || 0;
-      const status = (sale.paymentStatus || "PENDING").toUpperCase();
+      const status = (sale.paymentStatus || "LUNAS").toUpperCase();
 
       salesSummary.totalRevenueBulanIni += totalAmount;
       salesSummary.totalKarungTerjualBulanIni += quantity;
@@ -272,16 +310,13 @@ export async function GET(request: NextRequest) {
     });
 
     // ==========================================
-    // 6. MONITORING LOGISTIK (DELIVERIES) - SUPER AMAN
+    // 6. MONITORING LOGISTIK (DELIVERIES)
     // ==========================================
     const logisticsSummary = { diproses: 0, dikirim: 0, diterima: 0 };
-    
-    // Deteksi otomatis penamaan model Delivery / delivery / deliveries
-    const deliveryModel = (prisma as any).delivery || (prisma as any).Delivery || (prisma as any).deliveries || (prisma as any).Deliveries;
 
-    if (deliveryModel && typeof deliveryModel.groupBy === "function") {
+    if (isDeliveryModel && typeof isDeliveryModel.groupBy === "function") {
       try {
-        const deliveriesGroup = await deliveryModel.groupBy({
+        const deliveriesGroup = await isDeliveryModel.groupBy({
           by: ["status"],
           _count: { id: true },
         });
@@ -296,13 +331,8 @@ export async function GET(request: NextRequest) {
       } catch (e) {
         console.error("Gagal memuat data logistik via groupBy:", e);
       }
-    } else {
-      console.warn("Peringatan: Model 'Delivery' tidak ditemukan di instance Prisma Anda.");
     }
 
-    // ==========================================
-    // RETURN DATA GABUNGAN UTUH KUMPULAN MODUL
-    // ==========================================
     return NextResponse.json({
       success: true,
       data: { 
@@ -317,9 +347,124 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error("CRITICAL DASHBOARD API ERROR:", error);
+    console.error("CRITICAL DASHBOARD API ERROR (GET):", error);
     return NextResponse.json(
       { success: false, message: error.message || "Internal Server Error" }, 
+      { status: 500 }
+    );
+  }
+}
+
+// ==========================================
+// HANDLE POST REQUEST
+// ==========================================
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    const {
+      invoiceNumber,
+      customerName,
+      bagTypeId,
+      quantity,
+      pricePerPiece,
+      paymentStatus,
+      driverName,
+      plateNumber,
+      deliveryAddress,
+      deliveryStatus
+    } = body;
+
+    if (!invoiceNumber || !customerName || !bagTypeId || !quantity || !pricePerPiece) {
+      return NextResponse.json(
+        { success: false, error: "Mohon isi semua data komersial yang diwajibkan." },
+        { status: 400 }
+      );
+    }
+
+    const totalAmount = Number(quantity) * Number(pricePerPiece);
+    const suratJalanNo = `SJ-${invoiceNumber.replace(/[^a-zA-Z0-9]/g, "")}`;
+
+    // Deteksi model database dinamis
+    const isSaleModel = (prisma as any).sale || (prisma as any).Sale || (prisma as any).sales || (prisma as any).Sales;
+    const isDeliveryModel = (prisma as any).delivery || (prisma as any).Delivery || (prisma as any).deliveries || (prisma as any).Deliveries;
+    const isTransactionModel = (prisma as any).transaction || (prisma as any).Transaction;
+
+    // Jalankan seluruh operasi di dalam sebuah Transaksi Tunggal (Atomic)
+    const result = await prisma.$transaction(async (tx) => {
+      let barisBaru;
+
+      // KONDISI 1: Jika menggunakan tabel 'Sale' terpisah
+      if (isSaleModel) {
+        const dataPayload: any = {
+          invoiceNumber,
+          customerName,
+          bagTypeId,
+          quantity: Number(quantity),
+          pricePerPiece: Number(pricePerPiece),
+          totalAmount,
+          paymentStatus,
+          date: new Date()
+        };
+
+        if (isDeliveryModel) {
+          dataPayload.delivery = {
+            create: {
+              suratJalanNo,
+              driverName: driverName || null,
+              plateNumber: plateNumber || null,
+              deliveryAddress: deliveryAddress || null,
+              status: deliveryStatus || "DIPROSES",
+              date: new Date()
+            }
+          };
+        }
+
+        // Simpan data sale menggunakan transactional context (tx)
+        const modelKey = (prisma as any).sale ? 'sale' : ((prisma as any).Sale ? 'Sale' : ((prisma as any).sales ? 'sales' : 'Sales'));
+        barisBaru = await (tx as any)[modelKey].create({
+          data: dataPayload,
+          include: isDeliveryModel ? { delivery: true } : undefined
+        });
+      } 
+      // KONDISI 2: Jika menggunakan single table 'Transaction'
+      else if (isTransactionModel) {
+        const modelKey = (prisma as any).transaction ? 'transaction' : 'Transaction';
+        barisBaru = await (tx as any)[modelKey].create({
+          data: {
+            date: new Date(),
+            type: "INCOME",
+            amount: totalAmount,
+            description: `${invoiceNumber} - ${customerName} (${quantity} lbr)`,
+            bagTypeId: bagTypeId,
+            quantity: Number(quantity)
+          }
+        });
+      } else {
+        throw new Error("Tidak menemukan model penampung data (Sale/Transaction) di skema database.");
+      }
+
+      // ==========================================
+      // PROSES POTONG STOK KARUNG SECARA OTOMATIS
+      // ==========================================
+      await tx.bagType.update({
+        where: { id: bagTypeId },
+        data: {
+          currentStock: {
+            decrement: Number(quantity) // Mengurangi stok asli di Neon DB sejumlah kuantitas terjual
+          }
+        }
+      });
+
+      return barisBaru;
+    });
+
+    return NextResponse.json({ success: true, data: result }, { status: 201 });
+
+  } catch (error: any) {
+    console.error("CRITICAL DASHBOARD API ERROR (POST):", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Terjadi kesalahan internal server saat menyimpan data." },
       { status: 500 }
     );
   }

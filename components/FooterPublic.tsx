@@ -1,3 +1,4 @@
+import { Briefcase, Globe, Mail, MapPin, Ship } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -18,11 +19,11 @@ export default function FooterPublic() {
               Produsen dan eksportir tepercaya untuk solusi pengemasan karung goni alami dan polipropilena (PP Woven) standar industri global.
             </p>
             <div className="pt-2 flex items-center gap-2">
-              <span className="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[11px] font-bold tracking-wider uppercase text-emerald-400">
-                🌐 Export Quality
+              <span className="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[11px] font-bold tracking-wider uppercase flex items-center gap-2 text-emerald-400">
+                <Globe className="w-4 h-4" /> Export Quality
               </span>
-              <span className="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[11px] font-bold tracking-wider uppercase text-slate-300">
-                💼 B2B Supplier
+              <span className="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[11px] font-bold tracking-wider uppercase flex items-center gap-2 text-slate-300">
+                <Briefcase className="w-4 h-4" /> B2B Supplier
               </span>
             </div>
           </div>
@@ -51,6 +52,9 @@ export default function FooterPublic() {
                 <Link href="/about" className="hover:text-emerald-400 transition">Tentang Kami</Link>
               </li>
               <li>
+                <Link href="/product" className="hover:text-emerald-400 transition">Produk</Link>
+              </li>
+              <li>
                 <Link href="/advantages" className="hover:text-emerald-400 transition">Keunggulan</Link>
               </li>
               <li>
@@ -64,15 +68,15 @@ export default function FooterPublic() {
             <h4 className="text-slate-200 font-bold uppercase tracking-wider text-xs">Hub Logistik</h4>
             <ul className="space-y-2 text-xs text-slate-400 leading-relaxed">
               <li className="flex items-start gap-2">
-                <span>📍</span>
+                <MapPin />
                 <span>Kawasan Industri Logistik Prima, Bekasi, Jawa Barat.</span>
               </li>
               <li className="flex items-center gap-2">
-                <span>🚢</span>
+                <Ship />
                 <span>Port of Loading: Tanjung Priok (IDTPP)</span>
               </li>
               <li className="flex items-center gap-2">
-                <span>✉️</span>
+                <Mail />
                 <span className="text-slate-300 font-medium">export@cvberkatmandiri.com</span>
               </li>
             </ul>

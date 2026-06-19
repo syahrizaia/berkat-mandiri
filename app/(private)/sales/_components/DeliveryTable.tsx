@@ -103,7 +103,9 @@ export default function DeliveryTable({
                   <td className="px-6 py-4 text-center whitespace-nowrap">
                     <span className="text-sm font-bold text-slate-900">{item.quantity.toLocaleString()}</span>
                     <span className="text-xs text-slate-500 font-normal"> lbr</span>
-                    <span className="block text-[11px] text-slate-400 font-normal mt-0.5">{item.bagType.name}</span>
+                    <span className="block text-[11px] text-slate-400 font-normal mt-0.5">
+                    {item.bagType?.name || "Tipe Karung Tidak Terdefinisi"}
+                    </span>
                   </td>
 
                   {/* Status Distribusi */}

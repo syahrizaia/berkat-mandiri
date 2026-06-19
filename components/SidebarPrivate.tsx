@@ -1,21 +1,55 @@
 /* eslint-disable react-hooks/static-components */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, Package, Users, FileText, 
-  LogOut, Menu, X, Building2, 
+  LogOut, Menu, X, Building2, Clock
 } from "lucide-react";
 
 export default function SidebarPrivate() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  
+  // State untuk menyimpan waktu dan tanggal agar aman dari hydration error
+  const [timeString, setTimeString] = useState("");
+  const [dateString, setDateString] = useState("");
+
+  // Efek untuk menjalankan jam digital secara real-time setiap 1 detik
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      
+      setTimeString(
+        now.toLocaleTimeString("id-ID", { 
+          hour: "2-digit", 
+          minute: "2-digit", 
+          second: "2-digit",
+          hour12: false 
+        }) + " WIB"
+      );
+
+      setDateString(
+        now.toLocaleDateString("id-ID", { 
+          weekday: "long", 
+          day: "numeric", 
+          month: "long", 
+          year: "numeric" 
+        })
+      );
+    };
+
+    updateClock(); // Jalankan sekali di awal render client
+    const intervalId = setInterval(updateClock, 1000); // Update setiap detik
+
+    return () => clearInterval(intervalId); // Bersihkan memori interval saat unmount
+  }, []);
 
   const navLinks = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Dasbor", href: "/dashboard", icon: LayoutDashboard },
     { name: "Penjualan", href: "/sales", icon: FileText },
     { name: "Stok Barang", href: "/inventory", icon: Package },
     { name: "Karyawan", href: "/employees", icon: Users },
@@ -53,12 +87,28 @@ export default function SidebarPrivate() {
         })}
       </div>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-slate-100">
+      {/* Bagian Bawah Sidebar (Waktu & Logout) */}
+      <div className="border-t border-slate-100 p-4 space-y-3">
+        {/* Tombol Logout */}
         <button className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all">
           <LogOut className="w-5 h-5" />
           Keluar
         </button>
+
+        {/* Widget Waktu Real-Time Sistem */}
+        {timeString && (
+          <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 flex flex-col gap-0.5">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Clock className="w-3 h-3 text-emerald-600" /> Waktu Sistem
+            </span>
+            <span className="text-base font-mono font-bold text-slate-800 tracking-tight">
+              {timeString}
+            </span>
+            <span className="text-[11px] text-slate-500 font-medium">
+              {dateString}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

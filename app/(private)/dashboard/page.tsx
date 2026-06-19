@@ -2,6 +2,7 @@
 "use client";
 
 import StockPredictionBlock from "@/components/StockPredictionBlock";
+import { BarChart4, Download, Printer, Users, } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   BarChart,
@@ -112,7 +113,8 @@ export default function AdminDashboard() {
             onClick={handleDownloadExcel}
             className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-5 rounded-xl text-sm transition-all shadow-sm"
           >
-            📥 Excel
+            <Download />
+            Excel
           </button>
         </div>
       </div>
@@ -124,7 +126,9 @@ export default function AdminDashboard() {
         {/* BLOK 2: GRAFIK TREN VOLUME */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-slate-900 text-base">📈 Grafik Tren Volume Karung ({labelWaktu[timeframe]})</h3>
+            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+              <BarChart4 /> Grafik Tren Volume Karung ({labelWaktu[timeframe]})
+            </h3>
             <p className="text-xs text-slate-500 mb-4">Visualisasi akumulasi kuantitas berdasarkan log kerja terbaru</p>
           </div>
 
@@ -150,7 +154,7 @@ export default function AdminDashboard() {
         {/* NOTIFIKASI INFORMASI CETAK */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-slate-900 mb-2">🖨️ Cetak Dokumen Fisik</h3>
+            <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2"><Printer /> Cetak Dokumen Fisik</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
               Seluruh grafik tren, rincian borongan slip upah, beserta tabel master prediksi stok di samping dapat diekspor langsung ke spreadsheet format `.xlsx`.
             </p>
@@ -168,7 +172,7 @@ export default function AdminDashboard() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="font-bold text-slate-900 text-base">👥 Performa Borongan Gaji Karyawan ({labelWaktu[timeframe]})</h3>
+            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2"><Users /> Performa Borongan Gaji Karyawan ({labelWaktu[timeframe]})</h3>
             <p className="text-xs text-slate-500">Akumulasi hasil produksi lembar karung dan total upah hak karyawan pada periode terpilih</p>
           </div>
           <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl self-start sm:self-auto border border-emerald-200/50">

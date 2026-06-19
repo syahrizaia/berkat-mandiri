@@ -4,6 +4,7 @@ import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import LogisticsCalculator from "@/components/LogisticsCalculator";
 import RfqForm from "@/components/RfqForm";
 import { motion, Variants } from "framer-motion";
+import { Globe } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingPage() {
@@ -70,7 +71,9 @@ export default function LandingPage() {
             className="space-y-6 max-w-2xl"
           >
             <div className="inline-flex items-center space-x-2 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full text-xs font-semibold tracking-wide uppercase">
-              <span>🌐 Siap Ekspor Global</span>
+              <span className="flex items-center gap-2">
+                <Globe /> Siap Ekspor Global
+              </span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Solusi Pengemasan Karung Berkualitas untuk <span className="text-emerald-600">Pasar Internasional</span>

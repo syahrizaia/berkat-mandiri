@@ -22,21 +22,21 @@ export default function SalesMetrics({ sales }: { sales: SaleWithRelations[] }) 
         <div className="p-3 bg-emerald-50 rounded-xl"><DollarSign className="text-emerald-600 w-6 h-6" /></div>
         <div>
           <p className="text-[10px] text-slate-400 font-bold uppercase">Total Nilai Transaksi</p>
-          <p className="text-xl font-black text-slate-900">Rp {totalOmzet.toLocaleString("id-ID")}</p>
+          <p className="text-xl font-bold text-slate-900">Rp {totalOmzet.toLocaleString("id-ID")}</p>
         </div>
       </div>
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
         <div className="p-3 bg-blue-50 rounded-xl"><Truck className="text-blue-600 w-6 h-6" /></div>
         <div>
           <p className="text-[10px] text-slate-400 font-bold uppercase">Total Fleet Beroperasi</p>
-          <p className="text-xl font-black text-slate-900">{armadaAktif} Surat Jalan Aktif</p>
+          <p className="text-xl font-bold text-slate-900">{armadaAktif} Surat Jalan Aktif</p>
         </div>
       </div>
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 sm:col-span-2 lg:col-span-1">
         <div className="p-3 bg-amber-50 rounded-xl"><Clock className="text-amber-600 w-6 h-6" /></div>
         <div>
           <p className="text-[10px] text-slate-400 font-bold uppercase">Invoice Jatuh Tempo</p>
-          <p className="text-xl font-black text-amber-600">{pendingPayment} Transaksi Pending</p>
+          <p className="text-xl font-bold text-amber-600">{pendingPayment} Transaksi Pending</p>
         </div>
       </div>
     </div>

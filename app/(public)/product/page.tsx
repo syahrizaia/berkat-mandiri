@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, Variants } from "framer-motion";
+import { MessageCircle } from "lucide-react";
 import React from "react";
 
 // Data Katalog Produk
@@ -175,7 +176,7 @@ export default function ProductPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm w-full sm:w-auto gap-2"
                 >
-                  <span>💬</span> Hubungi Sales via WhatsApp
+                  <MessageCircle /> Hubungi Sales via WhatsApp
                 </motion.a>
               </div>
 

@@ -7,6 +7,7 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
 
 # Penyesuaian Otomatis: Load file .env yang berada di parent directory (root Next.js)
 current_dir = Path(__file__).resolve().parent
@@ -16,21 +17,57 @@ load_dotenv(dotenv_path=root_env_path)
 app = FastAPI(title="CV Berkat Mandiri - ML Stock Prediction Service")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+engine = create_engine(DATABASE_URL)
+
+@app.get("/predict")
+def get_predictions():
+    query = 'SELECT * FROM "BagType"' # Atau kueri transaksi kamu
+    
+    df = pd.read_sql_query(query, engine)
+    
+    print(f"=== DEBUG ML: Jumlah baris data yang ditemukan = {len(df)} ===")
+    
+    if df.empty:
+        return []
 
 def get_historical_sales_data():
-    """Mengambil riwayat penjualan bulanan dari database Neon.tech"""
+    """Mengambil riwayat penjualan bulanan dari database Neon.tech (Mendukung Sale & Transaction)"""
     if not DATABASE_URL:
-        raise ValueError("DATABASE_URL tidak ditemukan di Environment Variables. Pastikan file .env di root terbaca.")
+        raise ValueError("DATABASE_URL tidak ditemukan.")
         
     conn = psycopg2.connect(DATABASE_URL)
-    # Filter hanya transaksi INCOME (Penjualan) yang memiliki relasi bagTypeId
-    query = """
-        SELECT "bagTypeId", DATE_TRUNC('month', date) as month, SUM(quantity) as total_sold
-        FROM "Transaction"
-        WHERE type = 'INCOME' AND "bagTypeId" IS NOT NULL
-        GROUP BY "bagTypeId", month
-        ORDER BY month ASC;
-    """
+    cursor = conn.cursor()
+    
+    # Cek apakah tabel "Sale" ada di database
+    cursor.execute("""
+        SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_name = 'Sale'
+        );
+    """)
+    has_sale_table = cursor.fetchone()[0]
+    
+    if has_sale_table:
+        # Jika ada tabel Sale, ambil data historis dari tabel Sale murni
+        query = """
+            SELECT "bagTypeId", DATE_TRUNC('month', date) as month, SUM(quantity) as total_sold
+            FROM "Sale"
+            GROUP BY "bagTypeId", month
+            ORDER BY month ASC;
+        """
+    else:
+        # Fallback ke tabel Transaction jika skema single-table
+        query = """
+            SELECT "bagTypeId", DATE_TRUNC('month', date) as month, SUM(quantity) as total_sold
+            FROM "Transaction"
+            WHERE type = 'INCOME' AND "bagTypeId" IS NOT NULL
+            GROUP BY "bagTypeId", month
+            ORDER BY month ASC;
+        """
+        
     df = pd.read_sql_query(query, conn)
     conn.close()
     return df

@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { 
-  Package, 
   AlertTriangle, 
   CheckCircle, 
   X, 
@@ -11,7 +9,8 @@ import {
   ArrowRight, 
   LineChart, 
   ShieldCheck, 
-  Cpu 
+  Cpu, 
+  Bot
 } from "lucide-react";
 import 'katex/dist/katex.min.css';
 import { InlineMath } from 'react-katex';
@@ -48,8 +47,8 @@ export default function StockPredictionBlock({ predictions }: StockPredictionBlo
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-        <Package className="w-5 h-5 text-emerald-600" /> 
-        🤖 Prediksi Batas Stok Karung Aman (Scikit-Learn ML)
+        <Bot />
+        Prediksi Batas Stok Karung Aman (Scikit-Learn ML)
       </h2>
       
       {/* GRID KARTU STOK */}

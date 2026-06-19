@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -73,18 +75,24 @@ export default function SalesPage() {
         setSales([]);
       }
 
-      // 2. Fetch Bag Types Data
-      const resBags = await fetch("/api/admin/dashboard");
-      if (resBags.ok) {
-        const contentTypeBag = resBags.headers.get("content-type");
-        if (contentTypeBag && contentTypeBag.includes("application/json")) {
-          const dataBags = await resBags.json();
-          setBagTypes(dataBags.success ? dataBags.data : dataBags);
+        if (resData && resData.success && resData.data) {
+            
+            // A. Set State Sales
+            if (Array.isArray(resData.data.sales)) {
+            setSales(resData.data.sales);
+            } else {
+            setSales([]);
+            }
+
+            // B. Set State Tipe Karung (Diambil dari stockPredictions)
+            if (Array.isArray(resData.data.stockPredictions)) {
+            setBagTypes(resData.data.stockPredictions);
+            } else {
+            console.warn("Properti stockPredictions tidak ditemukan atau bukan array.");
+            setBagTypes([]);
+            }
+
         }
-      } else {
-        console.warn(`Gagal memuat tipe karung (Status: ${resBags.status}). Menggunakan opsi kosong.`);
-        setBagTypes([]);
-      }
       
     } catch (error) {
       console.error("Gagal memuat data operasional:", error);
@@ -180,10 +188,10 @@ export default function SalesPage() {
       {/* TABS MENU */}
       <div className="flex border-b border-slate-200 gap-2">
         <button onClick={() => setActiveTab("sales")} className={`pb-3 px-4 font-bold text-sm border-b-2 transition-all flex items-center gap-2 ${activeTab === "sales" ? "border-emerald-600 text-emerald-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
-          <FileText className="w-4 h-4" /> 📦 Invoice Penjualan
+          <FileText className="w-4 h-4" /> Invoice Penjualan
         </button>
         <button onClick={() => setActiveTab("delivery")} className={`pb-3 px-4 font-bold text-sm border-b-2 transition-all flex items-center gap-2 ${activeTab === "delivery" ? "border-emerald-600 text-emerald-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
-          <Truck className="w-4 h-4" /> 🚚 Logistik Surat Jalan
+          <Truck className="w-4 h-4" /> Logistik Surat Jalan
         </button>
       </div>
 

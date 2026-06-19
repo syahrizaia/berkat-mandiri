@@ -31,7 +31,12 @@ export default function SalesTable({ sales, onEdit, onDelete }: TableProps) {
                   <span className="text-[11px] text-slate-400 block">{new Date(item.date).toLocaleDateString("id-ID")}</span>
                 </td>
                 <td className="py-4 px-6 font-bold text-slate-900">{item.customerName}</td>
-                <td className="py-4 px-6 text-xs text-slate-500">{item.bagType.name} <span className="block font-mono text-[10px] text-slate-400">{item.bagType.sku}</span></td>
+                <td className="py-4 px-6 text-xs text-slate-500">
+                {item.bagType?.name || "Tipe Karung Tidak Diketahui"} 
+                <span className="block font-mono text-[10px] text-slate-400">
+                    {item.bagType?.sku || "-"}
+                </span>
+                </td>
                 <td className="py-4 px-6 text-center font-mono font-bold">{item.quantity.toLocaleString()} <span className="text-xs text-slate-400 font-normal">lbr</span></td>
                 <td className="py-4 px-6 text-right font-mono text-emerald-700 font-bold">Rp {item.totalAmount.toLocaleString("id-ID")}</td>
                 <td className="py-4 px-6 text-center">

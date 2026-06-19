@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import React from "react";
 import ContactForm from "@/components/ContactForm";
+import { Mail, MapPin, MessageCircle, Ship } from "lucide-react";
 
 export default function ContactPage() {
   
@@ -95,7 +96,7 @@ export default function ContactPage() {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-3 p-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors text-sm w-full shadow-sm"
               >
-                <span>💬</span> WhatsApp Sales Representative
+                <MessageCircle /> WhatsApp Sales Representative
               </motion.a>
               
               <div className="text-center">
@@ -110,7 +111,7 @@ export default function ContactPage() {
             >
               <motion.div variants={fadeInUp} className="flex gap-4 items-start">
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 font-bold shrink-0">
-                  📍
+                  <MapPin />
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-slate-900">Kantor Operasional & Gudang Utama</h4>
@@ -122,7 +123,7 @@ export default function ContactPage() {
 
               <motion.div variants={fadeInUp} className="flex gap-4 items-start">
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 font-bold shrink-0">
-                  ✉️
+                  <Mail />
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-slate-900">Korespondensi Surat Elektronik</h4>
@@ -135,7 +136,7 @@ export default function ContactPage() {
 
               <motion.div variants={fadeInUp} className="flex gap-4 items-start">
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 font-bold shrink-0">
-                  🚢
+                  <Ship />
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-slate-900">Pelabuhan Muat Utama (Port of Loading)</h4>

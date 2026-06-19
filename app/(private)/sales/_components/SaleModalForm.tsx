@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
@@ -8,11 +10,20 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   editingSale: SaleWithRelations | null;
-  bagTypes: any[];
+  bagTypes: any; // Diubah ke any untuk mengantisipasi data berupa objek atau array
   refreshData: () => void;
 }
 
 export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshData }: ModalProps) {
+  // 1. Ekstraksi data secara agresif & aman (Mencegah bug pembungkus objek API)
+  const actualBagTypes = Array.isArray(bagTypes)
+    ? bagTypes
+    : Array.isArray(bagTypes?.stockPredictions)
+    ? bagTypes.stockPredictions
+    : Array.isArray(bagTypes?.data?.stockPredictions)
+    ? bagTypes.data.stockPredictions
+    : [];
+
   const [formData, setFormData] = useState({
     invoiceNumber: "",
     customerName: "",
@@ -26,6 +37,7 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
     deliveryStatus: "DIPROSES"
   });
 
+  // 2. Sinkronisasi state form secara dinamis saat data dari database tiba
   useEffect(() => {
     if (editingSale) {
       setFormData({
@@ -40,14 +52,18 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
         deliveryAddress: editingSale.delivery?.deliveryAddress || "",
         deliveryStatus: editingSale.delivery?.status || "DIPROSES"
       });
-    } else if (bagTypes.length > 0) {
-      setFormData(prev => ({ ...prev, bagTypeId: bagTypes[0].id }));
+    } else if (actualBagTypes.length > 0) {
+      // Pastikan memilih item pertama secara default jika merancang penjualan baru
+      setFormData(prev => ({
+        ...prev,
+        bagTypeId: prev.bagTypeId || actualBagTypes[0].id
+      }));
     }
-  }, [editingSale, bagTypes]);
+  }, [editingSale, actualBagTypes]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = editingSale ? `/api/admin/dashboard/${editingSale.id}` : "/api/sales";
+    const url = editingSale ? `/api/admin/dashboard/${editingSale.id}` : `/api/admin/dashboard`;
     const method = editingSale ? "PUT" : "POST";
 
     try {
@@ -87,12 +103,21 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1">Stok Karung (Database Neon)</label>
-                <select value={formData.bagTypeId} onChange={e => setFormData({ ...formData, bagTypeId: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl bg-white">
-                  {(Array.isArray(bagTypes) ? bagTypes : []).map(b => (
-                    <option key={b.id} value={b.id}>
-                        {b.name} ({b.sku})
-                    </option>
-                  ))}
+                <select 
+                  value={formData.bagTypeId} 
+                  required
+                  onChange={e => setFormData({ ...formData, bagTypeId: e.target.value })} 
+                  className="w-full text-sm border p-2.5 rounded-xl bg-white"
+                >
+                  {actualBagTypes.length === 0 ? (
+                    <option disabled value="">Memuat data karung / stok kosong...</option>
+                  ) : (
+                    actualBagTypes.map((b : any) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.sku}) — Stok: {b.currentStock}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
               <div>
@@ -114,7 +139,11 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
           </div>
 
           <div className="bg-blue-50/40 text-slate-600 p-4 rounded-2xl border border-blue-100 space-y-3">
-            <h4 className="text-xs font-bold text-blue-800 uppercase">2. Manifest Logistik</h4>
+            <div className="flex justify-between items-center">
+                <h4 className="text-xs font-bold text-blue-800 uppercase">2. Manifest Logistik</h4>
+                <span className="text-[10px] text-slate-400 font-medium">*Kosongkan jika diambil sendiri oleh pembeli</span>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1">Nama Sopir</label>
@@ -122,7 +151,7 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-600 mb-1">Nomor Plat Mobil</label>
-                <input type="text" value={formData.plateNumber} onChange={e => setFormData({ ...formData, plateNumber: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl bg-white uppercase" />
+                <input type="text" value={formData.plateNumber} onChange={e => setFormData({ ...formData, plateNumber: e.target.value.toUpperCase() })} className="w-full text-sm border p-2.5 rounded-xl bg-white uppercase" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-xs font-bold text-slate-600 mb-1">Alamat Tujuan Pengiriman</label>
