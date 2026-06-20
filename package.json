@@ -5,7 +5,11 @@
   "scripts": {
     "dev:next": "next dev",
     "dev:python": "cd predict-service && .venv/bin/python -m uvicorn main:app --port 8000 --reload",
-    "dev": "concurrently \"npm run dev:next\" \"npm run dev:python\""
+    "dev": "concurrently \"npm run dev:next\" \"npm run dev:python\"",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "vercel-build": "prisma generate && next build"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
