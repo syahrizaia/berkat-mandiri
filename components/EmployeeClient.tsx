@@ -44,7 +44,7 @@ export default function EmployeeClient({ initialData }: { initialData: any[] }) 
       {/* Header */}
       <div className="flex justify-between items-center p-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Data Karyawan Pabrik</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Data Karyawan</h1>
           <p className="text-slate-500">Kelola informasi master data dan kontak tenaga kerja borongan</p>
         </div>
         <button 

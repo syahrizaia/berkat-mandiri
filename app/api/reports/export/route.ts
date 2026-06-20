@@ -48,7 +48,8 @@ export async function GET() {
     const bags = await prisma.bagType.findMany({
       include: { 
         // Mengambil data sales dari model Transaction yang bertipe INCOME
-        sales: {
+        sales: 
+        {
           where: {
             paymentStatus: "LUNAS"
           },

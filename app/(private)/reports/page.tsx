@@ -3,19 +3,18 @@ import ReportsChart from "@/components/ReportsChart";
 import ExportPDFButton from "@/components/ExportPDFButton";
 import { ArrowUpRight, ArrowDownRight, Wallet } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function ReportsPage() {
-  // 1. Ambil data asli HANYA dari tabel Sale (Neon.tech)
   const sales = await prisma.sale.findMany({
     orderBy: { date: "desc" },
     include: { bagType: true },
   });
 
-  // 2. Hitung agregasi finansial berdasarkan status pembayaran Penjualan
   const totalOmzet = sales.reduce((acc, s) => acc + s.totalAmount, 0);
   const totalLunas = sales.filter(s => s.paymentStatus === "LUNAS").reduce((acc, s) => acc + s.totalAmount, 0);
   const totalPending = sales.filter(s => s.paymentStatus === "PENDING").reduce((acc, s) => acc + s.totalAmount, 0);
 
-  // 3. OLAHAN DATA DINAMIS: Urutan 6 bulan terakhir (Tahun Berjalan 2026)
   const namaBulanIndo = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
   const bulanSaatIni = new Date().getMonth(); 
   

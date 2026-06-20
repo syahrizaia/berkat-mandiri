@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-// Gunakan singleton yang sudah kita perbaiki agar Neon WebSocket tetap aktif
 import { prisma } from "@/lib/prisma"; 
+import { revalidatePath } from "next/cache";
 
 // ==========================================
 // [PUT] UPDATE DATA TRANSAKSI & LOGISTIK
@@ -64,6 +64,9 @@ export async function PUT(
       },
     });
 
+    revalidatePath("/reports");
+    revalidatePath("/sales");
+
     return NextResponse.json({ success: true, data: updatedSale });
   } catch (error: any) {
     console.error("[SALES_PUT_ERROR]:", error);
@@ -95,6 +98,9 @@ export async function DELETE(
         where: { id },
       });
     });
+
+    revalidatePath("/reports");
+    revalidatePath("/sales");
 
     return NextResponse.json({
       success: true,

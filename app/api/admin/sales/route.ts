@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -131,6 +132,9 @@ export async function POST(request: NextRequest) {
 
       return sale;
     });
+
+    revalidatePath("/reports");
+    revalidatePath("/sales");
 
     return NextResponse.json({ success: true, data: newSale }, { status: 201 });
   } catch (error: any) {
