@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 // UPDATE KARYAWAN (PUT)
 export async function PUT(
@@ -16,6 +17,8 @@ export async function PUT(
       where: { id },
       data: { name, phone: phone || null }
     });
+
+    revalidatePath("/employees");
 
     return NextResponse.json({ success: true, data: updatedEmployee });
   } catch (error: any) {
@@ -35,6 +38,8 @@ export async function DELETE(
     await prisma.employee.delete({
       where: { id }
     });
+
+    revalidatePath("/employees");
     
     return NextResponse.json({ success: true, message: "Karyawan berhasil dihapus." });
   } catch (error: any) {

@@ -5,6 +5,8 @@ import { useState, useMemo } from "react";
 import { Calendar, Printer, User, Phone, Briefcase, Layers, Wallet, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 interface EmployeeDetailViewProps {
   employee: any;
 }

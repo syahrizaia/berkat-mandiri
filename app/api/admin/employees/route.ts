@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
   try {
@@ -15,6 +16,8 @@ export async function POST(request: Request) {
     const newEmployee = await prisma.employee.create({
       data: { name, phone: phone || null }
     });
+
+    revalidatePath("/employees");
 
     return NextResponse.json({ success: true, data: newEmployee }, { status: 201 });
   } catch (error: any) {

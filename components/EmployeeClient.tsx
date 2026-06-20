@@ -8,6 +8,8 @@ import { Users, UserPlus, Phone, Calendar, Edit3, Trash2, Info } from "lucide-re
 import EmployeeModalForm from "./EmployeeModalForm";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function EmployeeClient({ initialData }: { initialData: any[] }) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);

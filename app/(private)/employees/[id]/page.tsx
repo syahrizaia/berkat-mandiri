@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import EmployeeDetailView from "@/components/EmployeeDetailView";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{
     id: string;
