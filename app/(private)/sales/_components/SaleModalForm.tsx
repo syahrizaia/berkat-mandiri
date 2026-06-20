@@ -63,7 +63,7 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = editingSale ? `/api/admin/dashboard/${editingSale.id}` : `/api/admin/dashboard`;
+    const url = editingSale ? `/api/admin/sales/${editingSale.id}` : `/api/admin/sales`;
     const method = editingSale ? "PUT" : "POST";
 
     try {

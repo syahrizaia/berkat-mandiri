@@ -48,12 +48,10 @@ export default function SalesPage() {
   const [editingSale, setEditingSale] = useState<SaleWithRelations | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. FETCH DATA DARI NEON.TECH (VIA API NEXT.JS)
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch Dashboard Data
-      const resDashboard = await fetch(`/api/admin/dashboard?timeframe=${timeframe}`);
+      const resDashboard = await fetch(`/api/admin/sales?timeframe=${timeframe}`);
       
       if (!resDashboard.ok) {
         throw new Error(`Dashboard API bermasalah (Status: ${resDashboard.status})`);
@@ -108,11 +106,10 @@ export default function SalesPage() {
     fetchData();
   }, [timeframe]);
 
-  // 2. HANDLER HAPUS DATA (CASCADE DI DB NEON.TECH)
   const handleDelete = async (id: string) => {
     if (confirm("Hapus transaksi? Data Surat Jalan & Buku Kas terkait akan ikut terhapus otomatis.")) {
       try {
-        await fetch(`/api/admin/dashboard/${id}`, { method: "DELETE" });
+        await fetch(`/api/admin/sales/${id}`, { method: "DELETE" });
         fetchData(); // Refresh data dari server
       } catch (error) {
         alert("Gagal menghapus data");
@@ -120,7 +117,6 @@ export default function SalesPage() {
     }
   };
 
-  // 3. FITUR UTILITY: CETAK REKAP BRUTO BERKALA
   const printLaporanBerkala = () => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;

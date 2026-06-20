@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     else if (timeframe === "tahun") batasWaktuSales = awalTahunIni;
 
     // ==========================================
-    // 1. AMBIL DATA STOK & PREDIKSI (PYTHON ML INTEGRATION)
+    // 1. AMBIL DATA STOK & PREDIKSI (PYTHON ML INTEGRATION) - SECURE FIX
     // ==========================================
     const bagTypes = await prisma.bagType.findMany();
 
@@ -48,14 +48,21 @@ export async function GET(request: NextRequest) {
       const pythonServiceUrl = process.env.PYTHON_ML_SERVICE_URL || "http://localhost:8000/predict";
       const res = await fetch(pythonServiceUrl, { cache: "no-store", signal: AbortSignal.timeout(3000) });
       if (res.ok) {
-        mlPredictions = await res.json();
+        const rawData = await res.json();
+        // ✅ Amankan: Pastikan hanya menerima array murni
+        mlPredictions = Array.isArray(rawData) ? rawData : [];
       }
     } catch (err) {
       console.error("Gagal terhubung ke service Python ML, beralih ke fallback otomatis.", err);
+      mlPredictions = [];
     }
 
-    const stockPredictions = bagTypes.map((bag) => {
-      const mlMatch = mlPredictions.find((pred) => pred.bagTypeId === bag.id);
+    const stockPredictions = (bagTypes || []).map((bag) => {
+      // ✅ Gunakan guard Array.isArray dan optional chaining (?.) agar kebal crash 500
+      const mlMatch = Array.isArray(mlPredictions)
+        ? mlPredictions.find((pred) => pred?.bagTypeId === bag.id)
+        : null;
+
       const predictedNextMonth = mlMatch 
         ? mlMatch.predictedNextMonth 
         : Math.ceil(bag.currentStock * 1.2 || 150);
@@ -228,7 +235,7 @@ export async function GET(request: NextRequest) {
     });
 
     // ==========================================
-    // 5. AGREGASI PENJUALAN & PIUTANG (SALES) - VERSI FIX 100% AMAN
+    // 5. AGREGASI PENJUALAN & PIUTANG (SALES)
     // ==========================================
     let allSales: any[] = [];
     const isSaleModel = (prisma as any).sale || (prisma as any).Sale || (prisma as any).sales || (prisma as any).Sales;
@@ -246,7 +253,6 @@ export async function GET(request: NextRequest) {
         });
       } catch (e) {
         console.error("Gagal mengeksekusi query findMany dengan include, mencoba include standar:", e);
-        // Tetap usahakan bawa bagType di dalam catch block
         allSales = await isSaleModel.findMany({
           where: { date: { gte: batasWaktuSales } },
           orderBy: { date: "desc" },
@@ -254,11 +260,10 @@ export async function GET(request: NextRequest) {
         });
       }
     } else if ((prisma as any).transaction) {
-      // Fallback jika menggunakan tabel tunggal Transaction
       const txSales = await (prisma as any).transaction.findMany({
         where: { type: "INCOME", date: { gte: batasWaktuSales } },
         orderBy: { date: "desc" },
-        include: { bagType: true } // Mengambil data karung dari relasi transaksi
+        include: { bagType: true }
       });
       
       allSales = txSales.map((t: any) => ({
@@ -266,13 +271,12 @@ export async function GET(request: NextRequest) {
         invoiceNumber: t.description?.includes(" - ") ? t.description.split(" - ")[0] : "INV-GEN",
         customerName: t.description?.includes(" - ") ? t.description.split(" - ")[1] : (t.description || "Pelanggan"),
         bagTypeId: t.bagTypeId || "",
-        bagType: t.bagType || { name: "Umum/Pemasukan Kas", sku: "GENERIC" }, // FIX: Menyediakan objek bagType agar frontend tidak undefined
+        bagType: t.bagType || { name: "Umum/Pemasukan Kas", sku: "GENERIC" },
         quantity: t.description?.match(/\((\d+)\s*lbr\)/)?.[1] ? parseInt(t.description.match(/\((\d+)\s*lbr\)/)[1]) : 0,
         pricePerPiece: 0,
         totalAmount: Number(t.amount) || 0,
         paymentStatus: "LUNAS",
         date: t.date,
-        // FIX: Menyediakan objek delivery tiruan agar DeliveryTable punya data untuk dirender
         delivery: {
           suratJalanNo: `SJ-${t.id.slice(0, 8).toUpperCase()}`,
           driverName: "Kurir Internal",
@@ -347,7 +351,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error("CRITICAL DASHBOARD API ERROR (GET):", error);
+    console.error("🚨 CRITICAL DASHBOARD API ERROR (GET):", error);
     return NextResponse.json(
       { success: false, message: error.message || "Internal Server Error" }, 
       { status: 500 }
@@ -385,16 +389,13 @@ export async function POST(request: Request) {
     const totalAmount = Number(quantity) * Number(pricePerPiece);
     const suratJalanNo = `SJ-${invoiceNumber.replace(/[^a-zA-Z0-9]/g, "")}`;
 
-    // Deteksi model database dinamis
     const isSaleModel = (prisma as any).sale || (prisma as any).Sale || (prisma as any).sales || (prisma as any).Sales;
     const isDeliveryModel = (prisma as any).delivery || (prisma as any).Delivery || (prisma as any).deliveries || (prisma as any).Deliveries;
     const isTransactionModel = (prisma as any).transaction || (prisma as any).Transaction;
 
-    // Jalankan seluruh operasi di dalam sebuah Transaksi Tunggal (Atomic)
     const result = await prisma.$transaction(async (tx) => {
       let barisBaru;
 
-      // KONDISI 1: Jika menggunakan tabel 'Sale' terpisah
       if (isSaleModel) {
         const dataPayload: any = {
           invoiceNumber,
@@ -420,14 +421,12 @@ export async function POST(request: Request) {
           };
         }
 
-        // Simpan data sale menggunakan transactional context (tx)
         const modelKey = (prisma as any).sale ? 'sale' : ((prisma as any).Sale ? 'Sale' : ((prisma as any).sales ? 'sales' : 'Sales'));
         barisBaru = await (tx as any)[modelKey].create({
           data: dataPayload,
           include: isDeliveryModel ? { delivery: true } : undefined
         });
       } 
-      // KONDISI 2: Jika menggunakan single table 'Transaction'
       else if (isTransactionModel) {
         const modelKey = (prisma as any).transaction ? 'transaction' : 'Transaction';
         barisBaru = await (tx as any)[modelKey].create({
@@ -444,14 +443,11 @@ export async function POST(request: Request) {
         throw new Error("Tidak menemukan model penampung data (Sale/Transaction) di skema database.");
       }
 
-      // ==========================================
-      // PROSES POTONG STOK KARUNG SECARA OTOMATIS
-      // ==========================================
       await tx.bagType.update({
         where: { id: bagTypeId },
         data: {
           currentStock: {
-            decrement: Number(quantity) // Mengurangi stok asli di Neon DB sejumlah kuantitas terjual
+            decrement: Number(quantity)
           }
         }
       });
@@ -462,7 +458,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: result }, { status: 201 });
 
   } catch (error: any) {
-    console.error("CRITICAL DASHBOARD API ERROR (POST):", error);
+    console.error("🚨 CRITICAL DASHBOARD API ERROR (POST):", error);
     return NextResponse.json(
       { success: false, error: error.message || "Terjadi kesalahan internal server saat menyimpan data." },
       { status: 500 }

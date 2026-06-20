@@ -7,9 +7,8 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
 
-# Penyesuaian Otomatis: Load file .env yang berada di parent directory (root Next.js)
+# Load file .env dari parent directory (root Next.js)
 current_dir = Path(__file__).resolve().parent
 root_env_path = current_dir.parent / ".env"
 load_dotenv(dotenv_path=root_env_path)
@@ -20,28 +19,15 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(DATABASE_URL)
-
-@app.get("/predict")
-def get_predictions():
-    query = 'SELECT * FROM "BagType"' # Atau kueri transaksi kamu
-    
-    df = pd.read_sql_query(query, engine)
-    
-    print(f"=== DEBUG ML: Jumlah baris data yang ditemukan = {len(df)} ===")
-    
-    if df.empty:
-        return []
-
-def get_historical_sales_data():
-    """Mengambil riwayat penjualan bulanan dari database Neon.tech (Mendukung Sale & Transaction)"""
+def get_historical_sales_with_names():
+    """Mengambil riwayat penjualan bulanan sekaligus JOIN dengan nama BagType"""
     if not DATABASE_URL:
-        raise ValueError("DATABASE_URL tidak ditemukan.")
+        raise ValueError("DATABASE_URL tidak ditemukan di .env")
         
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
     
-    # Cek apakah tabel "Sale" ada di database
+    # Cek ketersediaan tabel Sale
     cursor.execute("""
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
@@ -51,20 +37,22 @@ def get_historical_sales_data():
     has_sale_table = cursor.fetchone()[0]
     
     if has_sale_table:
-        # Jika ada tabel Sale, ambil data historis dari tabel Sale murni
+        # Kueri cerdas: Menggabungkan data Sale dengan nama dari BagType
         query = """
-            SELECT "bagTypeId", DATE_TRUNC('month', date) as month, SUM(quantity) as total_sold
-            FROM "Sale"
-            GROUP BY "bagTypeId", month
+            SELECT s."bagTypeId", b.name as "bagTypeName", DATE_TRUNC('month', s.date) as month, SUM(s.quantity) as total_sold
+            FROM "Sale" s
+            JOIN "BagType" b ON s."bagTypeId" = b.id
+            GROUP BY s."bagTypeId", b.name, month
             ORDER BY month ASC;
         """
     else:
-        # Fallback ke tabel Transaction jika skema single-table
+        # Fallback ke tabel Transaction jika menggunakan skema lama
         query = """
-            SELECT "bagTypeId", DATE_TRUNC('month', date) as month, SUM(quantity) as total_sold
-            FROM "Transaction"
-            WHERE type = 'INCOME' AND "bagTypeId" IS NOT NULL
-            GROUP BY "bagTypeId", month
+            SELECT t."bagTypeId", b.name as "bagTypeName", DATE_TRUNC('month', t.date) as month, SUM(t.quantity) as total_sold
+            FROM "Transaction" t
+            JOIN "BagType" b ON t."bagTypeId" = b.id
+            WHERE t.type = 'INCOME' AND t."bagTypeId" IS NOT NULL
+            GROUP BY t."bagTypeId", b.name, month
             ORDER BY month ASC;
         """
         
@@ -72,49 +60,52 @@ def get_historical_sales_data():
     conn.close()
     return df
 
+# Skema data output yang dikirim kembali ke Frontend Next.js kamu
 class PredictionResult(BaseModel):
     bagTypeId: str
+    bagTypeName: str  # Sekarang frontend bisa langsung tahu nama karungnya!
     predictedNextMonth: int
 
 @app.get("/predict", response_model=list[PredictionResult])
 def predict_stock():
     try:
-        df = get_historical_sales_data()
+        df = get_historical_sales_with_names()
+        
+        print(f"=== DEBUG ML: Total data tren gabungan ditemukan = {len(df)} ===")
         if df.empty:
             return []
         
         predictions = []
-        # Kelompokkan data berdasarkan jenis karung (bagTypeId)
-        grouped = df.groupby("bagTypeId")
+        # Kelompokkan data per jenis karung berdasarkan ID dan Nama
+        grouped = df.groupby(["bagTypeId", "bagTypeName"])
         
-        for bag_id, group in grouped:
+        for (bag_id, bag_name), group in grouped:
             group = group.sort_values("month").reset_index(drop=True)
             
-            # Jika data histori kurang dari 2 bulan, gunakan rata-rata bergerak sederhana
+            # Logika fallback jika data history baru sedikit (di bawah 2 bulan)
             if len(group) < 2:
                 pred_val = int(group["total_sold"].mean()) if len(group) == 1 else 100
             else:
-                # Feature Engineering: Mengubah waktu bulan menjadi urutan angka indeks (0, 1, 2...)
+                # Feature Engineering konversi waktu ke urutan indeks angka (0, 1, 2, ...)
                 group['month_index'] = np.arange(len(group))
                 X = group[['month_index']].values
                 y = group['total_sold'].values
                 
-                # Menggunakan Linear Regression untuk menangkap tren kenaikan/penurunan penjualan
                 model = LinearRegression()
                 model.fit(X, y)
                 
-                # Prediksi indeks bulan depan (indeks terakhir + 1)
+                # Prediksi target indeks bulan depan
                 next_month_index = np.array([[len(group)]])
                 predicted_sales = model.predict(next_month_index)[0]
                 
-                # Berikan batas minimal 0 jika tren menghasilkan angka minus
                 pred_val = max(0, int(np.ceil(predicted_sales)))
             
-            # Kalibrasi Safety Stock (Prediksi Penjualan Bulan Depan x 1.5 untuk batas aman stok gudang)
+            # Kalibrasi Safety Stock (Faktor Pengali 1.5 aman)
             safety_stock_prediction = int(np.ceil(pred_val * 1.5))
             
             predictions.append(PredictionResult(
                 bagTypeId=bag_id,
+                bagTypeName=bag_name,
                 predictedNextMonth=safety_stock_prediction
             ))
             
@@ -125,5 +116,4 @@ def predict_stock():
 
 if __name__ == "__main__":
     import uvicorn
-    # Menjalankan server FastAPI pada port 8000
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

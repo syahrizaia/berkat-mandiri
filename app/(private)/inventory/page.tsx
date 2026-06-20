@@ -3,12 +3,10 @@ import { prisma } from "@/lib/prisma";
 import InventoryClient from "@/components/InventoryClient";
 
 export default async function InventoryPage() {
-  // 1. Ambil data stok langsung dari Neon Database
   const bags = await prisma.bagType.findMany({
     orderBy: { currentStock: "asc" },
   });
 
-  // 2. Ambil data Prediksi dari Python Service
   let mlPredictions: any[] = [];
   try {
     const pythonServiceUrl = process.env.PYTHON_ML_SERVICE_URL || "http://localhost:8000/predict";
@@ -18,7 +16,9 @@ export default async function InventoryPage() {
     });
     
     if (res.ok) {
-      mlPredictions = await res.json();
+      const rawData = await res.json();
+      // Validasi: Pastikan data yang didapat benar-benar Array, jika null/bukan array set ke []
+      mlPredictions = Array.isArray(rawData) ? rawData : [];
     } else {
       console.warn(`⚠️ API Python merespons dengan status: ${res.status}`);
     }
@@ -29,13 +29,15 @@ export default async function InventoryPage() {
       console.error("❌ Gagal terhubung ke ML Service:", err.message);
     }
     
-    // Pastikan tetap array kosong agar komponen UI di bawahnya tidak error .map()
     mlPredictions = [];
   }
 
-  // 3. Gabungkan data stok dengan ambang batas aman ML
-  const bagsWithPredictions = bags.map((bag) => {
-    const mlMatch = mlPredictions.find((pred) => pred.bagTypeId === bag.id);
+  const bagsWithPredictions = (bags || []).map((bag) => {
+    // Gunakan optional chaining (?.) dan pastikan mlPredictions aman sebelum di-find
+    const mlMatch = Array.isArray(mlPredictions) 
+      ? mlPredictions.find((pred) => pred?.bagTypeId === bag.id)
+      : null;
+
     const safetyThreshold = mlMatch 
       ? mlMatch.predictedNextMonth 
       : Math.ceil(bag.currentStock * 1.2 || 150);
