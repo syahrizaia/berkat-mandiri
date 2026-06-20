@@ -50,7 +50,10 @@ export async function GET() {
         // Mengambil data sales dari model Transaction yang bertipe INCOME
         sales: {
           where: {
-            type: "INCOME"
+            paymentStatus: "LUNAS"
+          },
+          include: {
+            bagType: true
           }
         } 
       }
