@@ -53,6 +53,11 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Berkat Mandiri",
+  },
 
   // Verifikasi Webmaster (Opsional, isi jika sudah mendaftar Google Search Console)
   // verification: {

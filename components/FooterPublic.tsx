@@ -90,7 +90,7 @@ export default function FooterPublic() {
         {/* BOTTOM BAR: COPYRIGHT & LEGALITAS */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
           <div>
-            <p>&copy; {new Date().getFullYear()} CV Berkat Mandiri. Seluruh hak cipta dilindungi undang-undang.</p>
+            <p>&copy; {new Date().getFullYear()} <Link href="/dashboard">CV Berkat Mandiri</Link>. Seluruh hak cipta dilindungi undang-undang.</p>
           </div>
           <div className="flex space-x-6">
             <a href="/privacy" className="hover:text-slate-400 transition">Kebijakan Privasi</a>

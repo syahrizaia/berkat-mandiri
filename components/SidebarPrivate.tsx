@@ -90,10 +90,10 @@ export default function SidebarPrivate() {
       {/* Bagian Bawah Sidebar (Waktu & Logout) */}
       <div className="border-t border-slate-100 p-4 space-y-3">
         {/* Tombol Logout */}
-        <button className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all">
+        <Link href="/" className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all">
           <LogOut className="w-5 h-5" />
           Keluar
-        </button>
+        </Link>
 
         {/* Widget Waktu Real-Time Sistem */}
         {timeString && (

@@ -1,5 +1,6 @@
 import FooterPublic from "@/components/FooterPublic";
 import NavbarPublic from "@/components/NavbarPublic";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 export default function PublicLayout({
   children,
@@ -10,6 +11,7 @@ export default function PublicLayout({
     <>
       <NavbarPublic />
       {children}
+      <PWAInstallButton />
       <FooterPublic />
     </>
   );
