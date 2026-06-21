@@ -2,8 +2,8 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CV Berkat Mandiri Dashboard",
-    short_name: "Berkat Mandiri",
+    name: "CV Berkat Mandiri",
+    short_name: "CV Berkat Mandiri",
     description: "Sistem Manajemen Stok & Penjualan CV Berkat Mandiri",
     start_url: "/",
     display: "standalone",
