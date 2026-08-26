@@ -7,7 +7,9 @@ export default function Home() {
   return (
     <>
     <NavbarPublic />
-    <LandingPage />
+    <main className="flex-1 w-full">
+      <LandingPage />
+    </main>
     <PWAInstallButton />
     <FooterPublic />
     </>

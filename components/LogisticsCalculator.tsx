@@ -21,11 +21,11 @@ export default function LogisticsCalculator() {
   return (
     <div className="bg-slate-900 text-white p-8 rounded-2xl border border-slate-800 shadow-xl max-w-xl mx-auto space-y-6">
       <div>
-        <h3 className="text-lg font-bold">Kalkulator Logistik Ekspor</h3>
+        <h2 className="text-lg font-bold">Kalkulator Logistik Ekspor</h2>
         <p className="text-xs text-slate-400 mt-1">Estimasi kebutuhan ruang kontainer kapal berdasarkan volume pesanan Anda.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-slate-400 uppercase mb-1">Jenis Bahan Karung</label>
           <select value={sackType} onChange={e => setSackType(e.target.value)} className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:ring-1 focus:ring-emerald-500 outline-none text-white">
@@ -42,7 +42,7 @@ export default function LogisticsCalculator() {
       <div className="border-t border-slate-800 pt-4 space-y-3">
         <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Rekomendasi Opsi Pengapalan:</p>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-800">
             <div className="text-xs text-slate-400">Kontainer 20ft FCL</div>
             <div className="text-2xl font-bold text-emerald-400 mt-1">{need20ft} <span className="text-xs text-slate-400 font-normal">Unit</span></div>

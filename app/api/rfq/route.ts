@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       message: "Data RFQ berhasil diterima!" 
     });
     
-  } catch (error) {
+  } catch {
     return NextResponse.json({ 
       success: false, 
       error: "Gagal memproses data" 

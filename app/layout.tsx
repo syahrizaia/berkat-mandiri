@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: "CV Berkat Mandiri",
     locale: "en_US", // Bagus untuk target pasar global, atau gunakan id_ID
     type: "website",
-    // images: [{ url: "/images/og-image.jpg", width: 1200, height: 630, alt: "CV Berkat Mandiri Hub" }]
+    images: [{ url: "/globe.svg", width: 1200, height: 630, alt: "CV Berkat Mandiri Hub" }]
   },
 
   // Pengaturan Robot crawler Google
@@ -76,9 +76,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className={`${geistSans.className} min-h-full flex flex-col bg-slate-50 text-slate-800`}>
-        <main className="flex-1 w-full">
+        <div className="flex-1 w-full">
           {children}
-        </main>
+        </div>
       </body>
     </html>
   );

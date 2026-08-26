@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 
 export default function InventoryActions({ id }: { id: string }) {
   const handleEdit = () => {
