@@ -1,47 +1,69 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import LiquidMeshBackground from "@/components/LiquidMeshBackground";
+import JsonLdSchema from "@/components/JsonLdSchema";
 
 // Konfigurasi Font
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 // KONTROL SEO METADATA (B2B & Global Export Optimized)
 export const metadata: Metadata = {
+  metadataBase: new URL("https://cvberkatmandiri.vercel.app"),
   title: {
-    default: "CV Berkat Mandiri | High-Quality Sacks Supplier & Global Exporter",
+    default: "CV Berkat Mandiri - Supplier Karung Goni & Plastik Woven PP Ekspor",
     template: "%s | CV Berkat Mandiri"
   },
-  description: "Produsen & supplier karung goni, karung plastik woven PP, dan karung laminasi custom untuk kebutuhan industri, logistik, dan pertanian skala besar (B2B). Siap melayani pengapalan ekspor internasional.",
+  description: "Produsen dan supplier karung goni ekspor, karung plastik woven PP, dan karung laminasi custom B2B kualitas tinggi. Siap melayani pengapalan kontainer FCL & LCL.",
   keywords: [
-    "supplier karung", "eksportir karung goni", "woven PP sacks manufacturer", 
-    "karung plastik grosir", "custom printing sacks", "bulk sack packaging", 
-    "CV Berkat Mandiri", "karung laminasi", "packaging export Indonesia"
+    "supplier karung goni",
+    "produsen karung plastik woven pp",
+    "pabrik karung ekspor indonesia",
+    "karung goni b-twill",
+    "karung beras laminasi custom printing",
+    "karung pupuk kimia inner pe",
+    "jual karung grosir bekasi jakarta",
+    "CV Berkat Mandiri",
+    "packaging export Indonesia"
   ],
   authors: [{ name: "CV Berkat Mandiri" }],
   creator: "CV Berkat Mandiri",
   publisher: "CV Berkat Mandiri",
-  metadataBase: new URL("https://berkatmandiricv.com"), // Ganti dengan domain asli Anda nanti
-  
-  // OpenGraph untuk optimasi share ke media sosial & LinkedIn Bisnis
-  openGraph: {
-    title: "CV Berkat Mandiri | Premium Sacks & Packaging Exporter",
-    description: "Solusi pengemasan karung standar internasional untuk rantai pasok global Anda. Hubungi kami untuk penawaran harga (RFQ) skala besar.",
-    url: "https://berkatmandiricv.com",
-    siteName: "CV Berkat Mandiri",
-    locale: "en_US", // Bagus untuk target pasar global, atau gunakan id_ID
-    type: "website",
-    images: [{ url: "/globe.svg", width: 1200, height: 630, alt: "CV Berkat Mandiri Hub" }]
+  alternates: {
+    canonical: "https://cvberkatmandiri.vercel.app",
   },
-
-  // Pengaturan Robot crawler Google
+  openGraph: {
+    title: "CV Berkat Mandiri - Supplier Karung Goni & Plastik Woven PP Ekspor",
+    description: "Produsen dan supplier karung goni ekspor, karung plastik woven PP, dan karung laminasi custom B2B kualitas tinggi. Siap pengapalan kontainer FCL & LCL via Port Tanjung Priok.",
+    url: "https://cvberkatmandiri.vercel.app",
+    siteName: "CV Berkat Mandiri",
+    locale: "id_ID",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "CV Berkat Mandiri - Produsen dan Eksportir Karung Indonesia",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CV Berkat Mandiri - Supplier Karung Goni & Plastik Woven PP Ekspor",
+    description: "Produsen dan supplier karung goni ekspor, karung plastik woven PP, dan karung laminasi custom B2B. Siap pengapalan FCL & LCL.",
+    images: ["/og-image.svg"],
+  },
   robots: {
     index: true,
     follow: true,
@@ -58,11 +80,6 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Berkat Mandiri",
   },
-
-  // Verifikasi Webmaster (Opsional, isi jika sudah mendaftar Google Search Console)
-  // verification: {
-  //   google: "kode-verifikasi-google-anda",
-  // },
 };
 
 export default function RootLayout({
@@ -75,8 +92,16 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className={`${geistSans.className} min-h-full flex flex-col bg-slate-50 text-slate-800`}>
-        <div className="flex-1 w-full">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <JsonLdSchema />
+      </head>
+      <body className={`${geistSans.className} min-h-full flex flex-col bg-slate-50 text-slate-900 relative selection:bg-emerald-500/20 selection:text-emerald-900`}>
+        <LiquidMeshBackground />
+        <div className="flex-1 w-full relative z-10">
           {children}
         </div>
       </body>

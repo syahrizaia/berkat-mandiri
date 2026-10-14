@@ -1,37 +1,33 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function FooterPrivate() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-white border-t border-slate-200 mt-auto py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          
-          {/* Sisi Kiri: Copyright */}
-          <div className="text-slate-500 text-sm">
-            <span className="font-semibold text-slate-700">CV Berkat Mandiri</span> 
-            <span className="hidden md:inline"> &copy; {currentYear}. All rights reserved.</span>
-            <span className="md:hidden"> © {currentYear}</span>
-          </div>
-
-          {/* Sisi Kanan: Tautan Internal & Status */}
-          <div className="flex items-center gap-6 text-sm text-slate-500">
-            <a href="/help" className="hover:text-emerald-600 transition-colors">
-              Pusat Bantuan
-            </a>
-            <a href="/docs" className="hover:text-emerald-600 transition-colors">
-              Dokumentasi
-            </a>
-            <div className="hidden sm:flex items-center gap-2">
-              <span className="text-slate-300">|</span>
-              <span className="font-mono text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100">
-                v2.0.4-stable
-              </span>
-            </div>
-          </div>
-
+    <footer className="mt-auto py-6 px-4 sm:px-6 lg:px-8 border-t border-slate-200/50 bg-white/40 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+        
+        {/* Sisi Kiri: Copyright */}
+        <div className="text-slate-700 font-medium flex items-center gap-2">
+          <span className="font-bold text-slate-950">CV Berkat Mandiri</span> 
+          <span>&copy; {currentYear}. Enterprise Resource Portal.</span>
         </div>
+
+        {/* Sisi Kanan: Tautan Internal & Status */}
+        <div className="flex items-center gap-5 text-slate-800 font-bold">
+          <Link href="/help" className="hover:text-emerald-700 transition-colors">
+            Pusat Bantuan
+          </Link>
+          <Link href="/docs" className="hover:text-emerald-700 transition-colors">
+            Dokumentasi Sistem
+          </Link>
+          <span className="text-slate-500 font-bold">|</span>
+          <span className="font-mono text-[10px] bg-emerald-500/15 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-bold">
+            v2.4-visionOS
+          </span>
+        </div>
+
       </div>
     </footer>
   );

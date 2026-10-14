@@ -2,20 +2,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, FileText, Truck, ShieldCheck, Coins, Package, MapPin, User, Hash, Sparkles } from "lucide-react";
 import { SaleWithRelations } from "../page";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   editingSale: SaleWithRelations | null;
-  bagTypes: any; // Diubah ke any untuk mengantisipasi data berupa objek atau array
+  bagTypes: any;
   refreshData: () => void;
 }
 
 export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshData }: ModalProps) {
-  // 1. Ekstraksi data secara agresif & aman (Mencegah bug pembungkus objek API)
+  // Ekstraksi data aman & defensif
   const actualBagTypes = Array.isArray(bagTypes)
     ? bagTypes
     : Array.isArray(bagTypes?.stockPredictions)
@@ -37,7 +40,8 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
     deliveryStatus: "DIPROSES"
   });
 
-  // 2. Sinkronisasi state form secara dinamis saat data dari database tiba
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     if (editingSale) {
       setFormData({
@@ -53,7 +57,6 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
         deliveryStatus: editingSale.delivery?.status || "DIPROSES"
       });
     } else if (actualBagTypes.length > 0) {
-      // Pastikan memilih item pertama secara default jika merancang penjualan baru
       setFormData(prev => ({
         ...prev,
         bagTypeId: prev.bagTypeId || actualBagTypes[0].id
@@ -63,6 +66,7 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const url = editingSale ? `/api/admin/sales/${editingSale.id}` : `/api/admin/sales`;
     const method = editingSale ? "PUT" : "POST";
 
@@ -75,105 +79,275 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
       if (response.ok) {
         refreshData();
         onClose();
+      } else {
+        alert("Gagal memproses data ke database. Silakan periksa kelengkapan form.");
       }
     } catch (error) {
-      alert("Gagal memproses data ke database");
+      alert("Terjadi kendala jaringan saat menghubungi database.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const calculatedTotal = (formData.quantity || 0) * (formData.pricePerPiece || 0);
+
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6">
-        <div className="flex justify-between items-center border-b pb-4 mb-4">
-          <h3 className="text-lg font-black text-slate-900">{editingSale ? "Edit Transaksi" : "Input Penjualan Baru (Auto-Surat Jalan)"}</h3>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-xl"><X className="w-5 h-5" /></button>
-        </div>
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        {/* Apple Frosted Backdrop */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xl transition-all"
+        />
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="bg-slate-50 text-slate-600 p-4 rounded-2xl border space-y-3">
-            <h4 className="text-xs font-bold text-emerald-800 uppercase">1. Faktur Komersial</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Nomor Invoice</label>
-                <input type="text" required value={formData.invoiceNumber} onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl focus:outline-emerald-500" placeholder="SL-2026-001" />
+        {/* Liquid Glass Modal Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 12 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white/95 backdrop-blur-2xl rounded-[32px] p-6 sm:p-8 shadow-2xl border border-slate-200/80 z-10"
+        >
+          {/* Header */}
+          <div className="flex items-start justify-between pb-5 border-b border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center text-emerald-700 shadow-sm border border-emerald-500/20">
+                <FileText className="w-6 h-6" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Nama Pembeli</label>
-                <input type="text" required value={formData.customerName} onChange={e => setFormData({ ...formData, customerName: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl focus:outline-emerald-500" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Stok Karung (Database Neon)</label>
-                <select 
-                  value={formData.bagTypeId} 
-                  required
-                  onChange={e => setFormData({ ...formData, bagTypeId: e.target.value })} 
-                  className="w-full text-sm border p-2.5 rounded-xl bg-white"
-                >
-                  {actualBagTypes.length === 0 ? (
-                    <option disabled value="">Memuat data karung / stok kosong...</option>
-                  ) : (
-                    actualBagTypes.map((b : any) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name} ({b.sku}) — Stok: {b.currentStock}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Volume (Lembar)</label>
-                <input type="number" required value={formData.quantity || ""} onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })} className="w-full text-sm border p-2.5 rounded-xl" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Harga Satuan (Rp)</label>
-                <input type="number" required value={formData.pricePerPiece || ""} onChange={e => setFormData({ ...formData, pricePerPiece: parseInt(e.target.value) || 0 })} className="w-full text-sm border p-2.5 rounded-xl" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Status Keuangan</label>
-                <select value={formData.paymentStatus} onChange={e => setFormData({ ...formData, paymentStatus: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl bg-white">
-                  <option value="PENDING">PENDING (Piutang)</option>
-                  <option value="LUNAS">LUNAS (Kas Masuk)</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-slate-950 tracking-tight">
+                    {editingSale ? "Edit Transaksi Penjualan" : "Input Penjualan Baru"}
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-800 border border-emerald-500/20">
+                    Auto-Surat Jalan
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 font-medium mt-0.5">
+                  Faktur komersial terhubung langsung dengan manifest pengiriman kurir.
+                </p>
               </div>
             </div>
+            <button
+              onClick={onClose}
+              type="button"
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
-          <div className="bg-blue-50/40 text-slate-600 p-4 rounded-2xl border border-blue-100 space-y-3">
-            <div className="flex justify-between items-center">
-                <h4 className="text-xs font-bold text-blue-800 uppercase">2. Manifest Logistik</h4>
-                <span className="text-[10px] text-slate-400 font-medium">*Kosongkan jika diambil sendiri oleh pembeli</span>
+          <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+            {/* Section 1: Faktur Komersial */}
+            <div className="p-5 rounded-2xl bg-emerald-500/[0.04] border border-emerald-500/20 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 tracking-wider uppercase">
+                  <Coins className="w-4 h-4 text-emerald-700" />
+                  1. Faktur Komersial & Inventori
+                </div>
+                <span className="text-[11px] text-slate-700 font-bold">
+                  Est. Subtotal:{" "}
+                  <strong className="text-emerald-800 font-extrabold">
+                    Rp {calculatedTotal.toLocaleString("id-ID")}
+                  </strong>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1.5">
+                    <Hash className="w-3.5 h-3.5 text-slate-500" />
+                    Nomor Invoice
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.invoiceNumber}
+                    onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-semibold"
+                    placeholder="SL-2026-001"
+                  />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1.5">
+                    <User className="w-3.5 h-3.5 text-slate-500" />
+                    Nama Pembeli / Klien
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.customerName}
+                    onChange={e => setFormData({ ...formData, customerName: e.target.value })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-semibold"
+                    placeholder="PT Pupuk Sriwidjaja"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1.5">
+                    <Package className="w-3.5 h-3.5 text-slate-500" />
+                    Tipe Karung (Database Neon)
+                  </label>
+                  <select
+                    value={formData.bagTypeId}
+                    required
+                    onChange={e => setFormData({ ...formData, bagTypeId: e.target.value })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-medium"
+                  >
+                    {actualBagTypes.length === 0 ? (
+                      <option disabled value="">Memuat data karung / stok kosong...</option>
+                    ) : (
+                      actualBagTypes.map((b: any) => (
+                        <option key={b.id} value={b.id} className="text-slate-950 font-medium">
+                          {b.name} ({b.sku}) — Stok Gudang: {b.currentStock?.toLocaleString("id-ID")} pcs
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    Volume Penjualan (Lembar)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    value={formData.quantity || ""}
+                    onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-mono font-bold"
+                    placeholder="10000"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    Harga Satuan (Rp / pcs)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={formData.pricePerPiece || ""}
+                    onChange={e => setFormData({ ...formData, pricePerPiece: parseInt(e.target.value) || 0 })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-mono font-bold"
+                    placeholder="1850"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+                    Status Pembayaran
+                  </label>
+                  <select
+                    value={formData.paymentStatus}
+                    onChange={e => setFormData({ ...formData, paymentStatus: e.target.value })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-bold"
+                  >
+                    <option value="PENDING">PENDING (Piutang Usaha / Menunggu Pelunasan)</option>
+                    <option value="LUNAS">LUNAS (Kas Diterima)</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Nama Sopir</label>
-                <input type="text" value={formData.driverName} onChange={e => setFormData({ ...formData, driverName: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl bg-white" />
+            {/* Section 2: Manifest Logistik */}
+            <div className="p-5 rounded-2xl bg-blue-500/[0.04] border border-blue-500/20 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-800 tracking-wider uppercase">
+                  <Truck className="w-4 h-4 text-blue-700" />
+                  2. Manifest Logistik & Pengiriman
+                </div>
+                <span className="text-xs text-slate-600 font-semibold">
+                  *Opsional jika self-pickup
+                </span>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Nomor Plat Mobil</label>
-                <input type="text" value={formData.plateNumber} onChange={e => setFormData({ ...formData, plateNumber: e.target.value.toUpperCase() })} className="w-full text-sm border p-2.5 rounded-xl bg-white uppercase" />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-600 mb-1">Alamat Tujuan Pengiriman</label>
-                <textarea rows={2} value={formData.deliveryAddress} onChange={e => setFormData({ ...formData, deliveryAddress: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl bg-white resize-none" />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-600 mb-1">Status Pengiriman Kurir</label>
-                <select value={formData.deliveryStatus} onChange={e => setFormData({ ...formData, deliveryStatus: e.target.value })} className="w-full text-sm border p-2.5 rounded-xl bg-white">
-                  <option value="DIPROSES">DIPROSES GUDANG</option>
-                  <option value="DIKIRIM">SEDANG DIKIRIM (ARMADA JALAN)</option>
-                  <option value="DITERIMA">BARANG SUDAH DITERIMA CUSTOMER</option>
-                </select>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    Nama Pengemudi / Sopir
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.driverName}
+                    onChange={e => setFormData({ ...formData, driverName: e.target.value })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                    placeholder="Pak Budi Santoso"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    Nomor Plat Armada
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.plateNumber}
+                    onChange={e => setFormData({ ...formData, plateNumber: e.target.value.toUpperCase() })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 placeholder:text-slate-500 uppercase font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                    placeholder="B 9876 XYZ"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                    Alamat Lengkap Tujuan Pengiriman
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formData.deliveryAddress}
+                    onChange={e => setFormData({ ...formData, deliveryAddress: e.target.value })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 placeholder:text-slate-500 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none"
+                    placeholder="Jl. Pergudangan Industri No. 45, Karawang Timur, Jawa Barat"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    Status Ekspedisi / Kurir
+                  </label>
+                  <select
+                    value={formData.deliveryStatus}
+                    onChange={e => setFormData({ ...formData, deliveryStatus: e.target.value })}
+                    className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all font-bold"
+                  >
+                    <option value="DIPROSES">DIPROSES GUDANG (Packing & Loading)</option>
+                    <option value="DIKIRIM">SEDANG DIKIRIM (Armada Dalam Perjalanan)</option>
+                    <option value="DITERIMA">BARANG SUDAH DITERIMA CUSTOMER</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="pt-4 border-t flex justify-end gap-3">
-            <button type="button" onClick={onClose} className="px-4 py-2 border text-slate-600 font-bold text-xs rounded-xl hover:bg-slate-50">Batal</button>
-            <button type="submit" className="px-5 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700">Simpan Data Terintegrasi</button>
-          </div>
-        </form>
+            {/* Bottom Actions */}
+            <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-800 font-bold text-xs hover:bg-slate-100 transition-all"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                <Sparkles className="w-4 h-4" />
+                {isSubmitting ? "Menyimpan..." : "Simpan Data Terintegrasi"}
+              </button>
+            </div>
+          </form>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }

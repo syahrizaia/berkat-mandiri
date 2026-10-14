@@ -2,25 +2,26 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CV Berkat Mandiri",
+    name: "CV Berkat Mandiri - Supplier Karung Goni & Plastik Ekspor",
     short_name: "CV Berkat Mandiri",
-    description: "Sistem Manajemen Stok & Penjualan CV Berkat Mandiri",
+    description: "Produsen dan supplier karung goni alami, karung plastik woven PP, dan karung laminasi custom printing B2B standar ekspor internasional.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#0f172a", // Warna tema bar (Slate-900 senada dengan dashboard)
+    background_color: "#f8fafc",
+    theme_color: "#059669",
+    categories: ["business", "productivity", "shopping"],
     icons: [
       {
         src: "/favicon.ico",
         sizes: "192x192",
-        type: "image/png",
+        type: "image/x-icon",
         purpose: "any",
       },
       {
         src: "/favicon.ico",
         sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable", // Wajib ada agar ikon bagus di Android bulat/kotak
+        type: "image/x-icon",
+        purpose: "maskable",
       },
     ],
   };

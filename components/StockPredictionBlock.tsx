@@ -10,8 +10,10 @@ import {
   LineChart, 
   ShieldCheck, 
   Cpu, 
-  Bot
+  Bot,
+  Sparkles
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import 'katex/dist/katex.min.css';
 import { InlineMath } from 'react-katex';
 
@@ -28,233 +30,269 @@ interface StockPredictionBlockProps {
 }
 
 export default function StockPredictionBlock({ predictions }: StockPredictionBlockProps) {
-  // State untuk menyimpan data karung yang sedang dipilih/diklik
   const [selectedStock, setSelectedStock] = useState<StockPrediction | null>(null);
 
   if (!predictions || predictions.length === 0) {
     return (
-      <div className="p-6 bg-white rounded-2xl border border-slate-200 text-center text-slate-400 text-sm">
-        Memuat analisis kecerdasan stok...
+      <div className="p-8 liquid-glass rounded-3xl border border-white/70 text-center text-slate-700 font-semibold text-sm shadow-sm flex items-center justify-center gap-3">
+        <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <span>Memuat analisis kecerdasan stok Scikit-Learn ML...</span>
       </div>
     );
   }
 
-  // Hitung taksiran penjualan dasar sebelum dikalibrasi safety stock 1.5x (untuk keperluan penjelasan di modal)
   const basePrediction = selectedStock 
     ? Math.round(selectedStock.predictedNextMonth / 1.5) 
     : 0;
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-        <Bot />
-        Prediksi Batas Stok Karung Aman (Scikit-Learn ML)
-      </h2>
+      {/* Title Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-700">
+            <Bot className="w-4 h-4" />
+          </div>
+          <span>Prediksi Batas Stok Karung Aman (Scikit-Learn ML)</span>
+        </h2>
+        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 text-xs font-bold border border-emerald-500/20">
+          <Sparkles className="w-3 h-3 text-emerald-600" />
+          Linear Regression Trained
+        </span>
+      </div>
       
-      {/* GRID KARTU STOK */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* GRID KARTU STOK (Bento Grid) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {predictions.map((stock) => {
           const isUnderStock = stock.currentStock < stock.predictedNextMonth;
           
           return (
-            <div 
-              key={stock.id} 
-              onClick={() => setSelectedStock(stock)}
-              className={`bg-white p-5 rounded-2xl border transition-all shadow-sm flex flex-col justify-between space-y-4 cursor-pointer group hover:shadow-md hover:-translate-y-0.5 ${
-                isUnderStock 
-                  ? "border-rose-200 hover:border-rose-300 bg-gradient-to-b from-white to-rose-50/10" 
-                  : "border-slate-200 hover:border-slate-300"
-              }`}
+            <motion.div 
+              key={stock.id}
+              whileHover={{ y: -4, transition: { duration: 0.25 } }}
+              className="liquid-glass rounded-3xl p-6 border border-white/70 shadow-lg flex flex-col justify-between space-y-5 relative overflow-hidden group"
             >
-              <div className="space-y-2">
-                <div className="flex justify-between items-start gap-2">
-                  <span className={`text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider ${
-                    isUnderStock ? "bg-rose-100 text-rose-700" : "bg-emerald-50 text-emerald-700"
-                  }`}>
+              <div className="space-y-4">
+                
+                {/* SKU Badge & Status */}
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-wider">
                     {stock.sku}
                   </span>
-                  
-                  {isUnderStock ? (
-                    <span className="flex items-center gap-1 text-xs font-bold text-rose-600 animate-pulse">
-                      <AlertTriangle className="w-3.5 h-3.5" /> Restock!
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 text-xs font-bold text-emerald-600">
-                      <CheckCircle className="w-3.5 h-3.5" /> Aman
-                    </span>
-                  )}
+
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                    isUnderStock 
+                      ? "bg-rose-500/15 text-rose-700 border border-rose-500/20" 
+                      : "bg-emerald-500/15 text-emerald-700 border border-emerald-500/20"
+                  }`}>
+                    {isUnderStock ? (
+                      <>
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                        <span>Kritis / Reorder</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Stok Aman</span>
+                      </>
+                    )}
+                  </span>
                 </div>
-                <h4 className="font-bold text-slate-800 text-sm tracking-tight line-clamp-2 group-hover:text-emerald-700 transition-colors">
+
+                {/* Name */}
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-snug">
                   {stock.name}
-                </h4>
+                </h3>
+
+                {/* Data Points */}
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="liquid-glass-subtle p-3 rounded-2xl border border-white/60">
+                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Stok Fisik</p>
+                    <p className="text-xl font-extrabold text-slate-900 mt-1">
+                      {stock.currentStock.toLocaleString()}{" "}
+                      <span className="text-xs font-semibold text-slate-600">lbr</span>
+                    </p>
+                  </div>
+
+                  <div className="liquid-glass-subtle p-3 rounded-2xl border border-white/60">
+                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Prediksi Batas</p>
+                    <p className="text-xl font-extrabold text-emerald-700 mt-1">
+                      {stock.predictedNextMonth.toLocaleString()}{" "}
+                      <span className="text-xs font-semibold text-slate-600">lbr</span>
+                    </p>
+                  </div>
+                </div>
+
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-center">
-                <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Stok Fisik</p>
-                  <p className="text-xl font-black text-slate-800 mt-0.5">
-                    {stock.currentStock.toLocaleString()} 
-                    <span className="text-xs font-normal text-slate-500 ml-1">lbr</span>
-                  </p>
-                </div>
-                <div className={isUnderStock ? "bg-rose-50/50 rounded-xl py-1.5" : "bg-slate-50/80 rounded-xl py-1.5"}>
-                  <p className={`text-[10px] font-black uppercase tracking-wider ${isUnderStock ? "text-rose-700" : "text-slate-500"}`}>
-                    Prediksi ML
-                  </p>
-                  <p className={`text-xl font-black mt-0.5 ${isUnderStock ? "text-rose-600" : "text-emerald-700"}`}>
-                    {stock.predictedNextMonth.toLocaleString()} 
-                    <span className="text-xs font-normal text-slate-400 ml-1">lbr</span>
-                  </p>
-                </div>
-              </div>
-              
-              <div className="text-[11px] text-slate-400 text-center pt-1 group-hover:text-emerald-600 font-medium transition-colors">
-                Klik kartu untuk bedah alur AI ↗
-              </div>
-            </div>
+              {/* Action Trigger Modal */}
+              <button
+                type="button"
+                onClick={() => setSelectedStock(stock)}
+                className="liquid-sheen w-full py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 transition flex items-center justify-center gap-1.5 active:scale-[0.98]"
+              >
+                <span>Buka Detail Alur Logika ML</span>
+                <ArrowRight className="w-3.5 h-3.5 text-emerald-600" />
+              </button>
+            </motion.div>
           );
         })}
       </div>
 
-      {/* POP-UP DIALOG DIKKLIK (EXPLORER ALUR MACHINE LEARNING) */}
-      {selectedStock && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col">
-            
-            {/* Header Modal */}
-            <div className="p-6 border-b border-slate-100 flex justify-between items-start sticky top-0 bg-white z-10">
-              <div>
-                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md uppercase">
-                  {selectedStock.sku}
-                </span>
-                <h3 className="text-lg font-bold text-slate-900 mt-2">{selectedStock.name}</h3>
-                <p className="text-xs text-slate-500">Transparansi Logika Matematika & Alur Prediksi Sistem</p>
-              </div>
-              <button 
-                onClick={() => setSelectedStock(null)}
-                className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* POP-UP MODAL: Transparansi Alur ML & Matematika (Apple Vision Liquid Glass) */}
+      <AnimatePresence>
+        {selectedStock && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            {/* Backdrop with Blur */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedStock(null)}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-md"
+            />
 
-            {/* Isi Konten Alur Pemrosesan */}
-            <div className="p-6 space-y-6">
-              
-              {/* Komparasi Kondisi Berjalan */}
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-2 gap-4 text-center">
+            {/* Modal Dialog */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="liquid-glass rounded-[36px] max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-white/80 relative z-10 flex flex-col backdrop-blur-3xl"
+            >
+              {/* Header Modal */}
+              <div className="p-6 sm:p-8 border-b border-slate-200/60 flex justify-between items-start bg-white/50 backdrop-blur-md sticky top-0 z-10">
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase">Stok Gudang Saat Ini</p>
-                  <p className="text-2xl font-black text-slate-800 mt-1">{selectedStock.currentStock.toLocaleString()} <span className="text-sm font-normal text-slate-500">lbr</span></p>
+                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-wider">
+                    {selectedStock.sku}
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">
+                    {selectedStock.name}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                    Transparansi Alur Logika Algoritma & Pembuktian Matematika ML
+                  </p>
                 </div>
-                <div className="border-l border-slate-200">
-                  <p className="text-xs font-semibold text-slate-500 uppercase">Rekomendasi Batas Aman</p>
-                  <p className="text-2xl font-black text-emerald-700 mt-1">{selectedStock.predictedNextMonth.toLocaleString()} <span className="text-sm font-normal text-slate-500">lbr</span></p>
-                </div>
+                <button 
+                  onClick={() => setSelectedStock(null)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-200/60 text-slate-600 hover:text-slate-900 transition"
+                  aria-label="Tutup Modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Garis Alur Langkah ML */}
-              <div className="space-y-6 relative before:absolute before:inset-0 before:left-5 before:top-2 before:w-0.5 before:bg-slate-100 before:h-[88%]">
+              {/* Isi Konten Alur Pemrosesan */}
+              <div className="p-6 sm:p-8 space-y-6 overflow-y-auto">
                 
-                {/* Langkah 1 */}
-                <div className="flex gap-4 relative">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 text-blue-600">
-                    <Database className="w-5 h-5" />
-                  </div>
+                {/* Komparasi Kondisi Berjalan (Glass Cards) */}
+                <div className="liquid-glass-subtle p-5 rounded-2xl border border-white/70 grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <h5 className="text-sm font-bold text-slate-900">Langkah 1: Kueri Riwayat Penjualan Fisik</h5>
-                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                      Sistem Python FastAPI melakukan kueri SQL langsung ke database Neon.tech untuk menarik agregasi penjualan bulanan (`type = &apos;INCOME&apos;`) khusus untuk ID karung ini.
+                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Stok Gudang Saat Ini</p>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
+                      {selectedStock.currentStock.toLocaleString()}{" "}
+                      <span className="text-xs font-semibold text-slate-600">lbr</span>
+                    </p>
+                  </div>
+                  <div className="border-l border-slate-200/60">
+                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Rekomendasi Batas Aman</p>
+                    <p className="text-2xl sm:text-3xl font-extrabold text-emerald-700 mt-1">
+                      {selectedStock.predictedNextMonth.toLocaleString()}{" "}
+                      <span className="text-xs font-semibold text-slate-600">lbr</span>
                     </p>
                   </div>
                 </div>
 
-                {/* Langkah 2 */}
-                <div className="flex gap-4 relative">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center shrink-0 text-purple-600">
-                    <ArrowRight className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-bold text-slate-900">Langkah 2: Rekayasa Fitur (Feature Engineering)</h5>
-                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                      Data berbasis waktu (timestamp) diubah menjadi urutan indeks angka linear menggunakan library NumPy `[0, 1, 2, ...]` untuk mewakili sumbu urutan bulan agar mesin mampu mengalkulasi tren matriks.
-                    </p>
-                  </div>
-                </div>
+                {/* Garis Alur Langkah ML (Numbered Pipeline) */}
+                <div className="space-y-4">
+                  <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">
+                    Tahapan Prediksi Scikit-Learn:
+                  </p>
 
-                {/* Langkah 3 */}
-                <div className="flex gap-4 relative">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-600">
-                    <LineChart className="w-5 h-5" />
+                  {/* Langkah 1 */}
+                  <div className="liquid-glass-subtle p-4 rounded-2xl border border-white/60 flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center shrink-0 text-blue-700">
+                      <Database className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Langkah 1: Kueri Agregasi Riwayat Penjualan</h4>
+                      <p className="text-xs text-slate-700 mt-1 leading-relaxed font-medium">
+                        Layanan Python FastAPI melakukan kueri SQL ke database serverless Neon untuk mengumpulkan volume penjualan bulanan historis (`type = &apos;INCOME&apos;`) spesifik SKU ini.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h5 className="text-sm font-bold text-slate-900">Langkah 3: Pencarian Pola Tren Tren (Linear Regression)</h5>
-                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                      Algoritma <span className="font-bold">Linear Regression</span> dari library Scikit-Learn membaca sebaran riwayat data penjualan untuk menentukan tingkat kemiringan grafik penjualan (apakah permintaan pasar condong naik atau turun). Rumus matematis yang terbentuk di memori: <InlineMath math="Y = mX + c" />
-                    </p>
-                  </div>
-                </div>
 
-                {/* Langkah 4 */}
-                <div className="flex gap-4 relative">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-50 border border-cyan-200 flex items-center justify-center shrink-0 text-cyan-600">
-                    <Cpu className="w-5 h-5" />
+                  {/* Langkah 2 */}
+                  <div className="liquid-glass-subtle p-4 rounded-2xl border border-white/60 flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center shrink-0 text-purple-700">
+                      <ArrowRight className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Langkah 2: Rekayasa Fitur Waktu (Feature Engineering)</h4>
+                      <p className="text-xs text-slate-700 mt-1 leading-relaxed font-medium">
+                        Data penanggalan dikonversi menjadi matriks linear indeks waktu kontinu menggunakan NumPy `[0, 1, 2, ...]` untuk membentuk sumbu X algoritma regresi.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h5 className="text-sm font-bold text-slate-900">Langkah 4: Proyeksi Penjualan Bulan Depan</h5>
-                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                      Sistem memasukkan indeks bulan masa depan ke dalam pola garis tren yang telah dipelajari. Untuk karung ini, didapatkan estimasi target penjualan murni sebesar <span className="font-bold text-slate-800">{basePrediction.toLocaleString()} lembar</span> untuk bulan depan.
-                    </p>
-                  </div>
-                </div>
 
-                {/* Langkah 5 */}
-                <div className="flex gap-4 relative">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600">
-                    <ShieldCheck className="w-5 h-5" />
+                  {/* Langkah 3 */}
+                  <div className="liquid-glass-subtle p-4 rounded-2xl border border-white/60 flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center shrink-0 text-amber-700">
+                      <LineChart className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Langkah 3: Pemodelan Regresi Linear</h4>
+                      <p className="text-xs text-slate-700 mt-1 leading-relaxed font-medium">
+                        Algoritma <span className="font-bold">Linear Regression</span> dari Scikit-Learn menghitung kemiringan gradien kurva permintaan komoditas. Persamaan: <span className="inline-block px-2 py-0.5 bg-white/70 rounded-md border border-slate-200 text-slate-900 font-bold ml-1"><InlineMath math="Y = mX + c" /></span>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h5 className="text-sm font-bold text-slate-900">Langkah 5: Kalibrasi Pengaman Berlipat (Safety Stock)</h5>
-                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                      Untuk mengantisipasi lonjakan order tak terduga dari pembeli dan menghindari kehabisan barang di gudang, hasil prediksi dasar dikalikan dengan <span className="font-bold"></span>, menghasilkan angka <span className="font-bold text-emerald-700">{selectedStock.predictedNextMonth.toLocaleString()} lembar</span>.
-                    </p>
+
+                  {/* Langkah 4 */}
+                  <div className="liquid-glass-subtle p-4 rounded-2xl border border-white/60 flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center shrink-0 text-cyan-700">
+                      <Cpu className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Langkah 4: Proyeksi Penjualan Bulan Depan</h4>
+                      <p className="text-xs text-slate-700 mt-1 leading-relaxed font-medium">
+                        Indeks bulan berikutnya diinterpolasi ke fungsi matematika yang telah dilatih. Proyeksi murni: <strong className="text-slate-950">{basePrediction.toLocaleString()} lembar</strong>.
+                      </p>
+                    </div>
                   </div>
+
+                  {/* Langkah 5 */}
+                  <div className="liquid-glass-subtle p-4 rounded-2xl border border-white/60 flex gap-4 items-start">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0 text-emerald-700">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Langkah 5: Kalibrasi Safety Stock (1.5x)</h4>
+                      <p className="text-xs text-slate-700 mt-1 leading-relaxed font-medium">
+                        Untuk memitigasi fluktuasi pesanan kargo mendadak, sistem menerapkan faktor pengali keamanan <strong className="text-slate-950">1.5x</strong>, menghasilkan batas stok aman <strong className="text-emerald-700">{selectedStock.predictedNextMonth.toLocaleString()} lembar</strong>.
+                      </p>
+                    </div>
+                  </div>
+
                 </div>
 
               </div>
 
-              {/* Kesimpulan Status Akhir */}
-              <div className={`p-4 rounded-2xl border text-xs font-medium leading-relaxed ${
-                selectedStock.currentStock < selectedStock.predictedNextMonth
-                  ? "bg-rose-50 text-rose-800 border-rose-200"
-                  : "bg-emerald-50 text-emerald-800 border-emerald-200"
-              }`}>
-                {selectedStock.currentStock < selectedStock.predictedNextMonth ? (
-                  <p>
-                    <strong>Kesimpulan Analisis:</strong> Stok fisik Anda saat ini ({selectedStock.currentStock.toLocaleString()} lbr) berada <strong>di bawah</strong> batas aman hasil prediksi AI ({selectedStock.predictedNextMonth.toLocaleString()} lbr). Gudang direkomendasikan untuk segera memproduksi atau memesan pasokan baru guna menghindari hilangnya potensi penjualan bulan depan.
-                  </p>
-                ) : (
-                  <p>
-                    <strong>Kesimpulan Analisis:</strong> Stok fisik Anda saat ini ({selectedStock.currentStock.toLocaleString()} lbr) masih <strong>mencukupi</strong> untuk menutupi batas aman prediksi AI ({selectedStock.predictedNextMonth.toLocaleString()} lbr). Status barang dinilai aman terkendali.
-                  </p>
-                )}
+              {/* Footer Modal */}
+              <div className="p-4 sm:p-6 border-t border-slate-200/60 bg-white/50 backdrop-blur-md flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedStock(null)}
+                  className="px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-200/60 transition"
+                >
+                  Tutup Rincian
+                </button>
               </div>
 
-            </div>
-
-            {/* Footer Modal */}
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end rounded-b-3xl">
-              <button
-                onClick={() => setSelectedStock(null)}
-                className="bg-slate-900 text-white font-semibold text-xs px-5 py-2.5 rounded-xl hover:bg-slate-800 transition shadow-sm"
-              >
-                Selesai Membaca
-              </button>
-            </div>
-
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

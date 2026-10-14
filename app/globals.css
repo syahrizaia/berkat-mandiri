@@ -1,8 +1,33 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #020617;
+
+  /* Apple Liquid Glass Tokens */
+  --apple-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --apple-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --apple-soft: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Light Glass System */
+  --glass-surface-base: rgba(255, 255, 255, 0.68);
+  --glass-surface-subtle: rgba(255, 255, 255, 0.42);
+  --glass-surface-prominent: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-border-subtle: rgba(255, 255, 255, 0.25);
+  --glass-specular-highlight: rgba(255, 255, 255, 0.7);
+
+  /* Dark Glass System */
+  --glass-dark-surface: rgba(15, 23, 42, 0.78);
+  --glass-dark-border: rgba(255, 255, 255, 0.12);
+  --glass-dark-specular: rgba(255, 255, 255, 0.25);
+
+  /* Corporate Brand Color Accents */
+  --color-emerald-apple: #059669;
+  --color-teal-apple: #0d9488;
+  --color-marine-apple: #0284c7;
 }
 
 @theme inline {
@@ -12,15 +37,393 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ==========================================================================
+   BASE & SMOOTH SCROLLING
+   ========================================================================== */
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   APPLE LIQUID GLASS MATERIALS & SPECULAR REFLECTION
+   ========================================================================== */
+
+/* Primary Liquid Glass Card (visionOS / macOS Style) */
+.liquid-glass {
+  background: var(--glass-surface-base);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.15),
+    0 20px 40px -15px rgba(0, 0, 0, 0.07),
+    0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: all 0.45s var(--apple-ease);
+}
+
+.liquid-glass:hover {
+  background: var(--glass-surface-prominent);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.2),
+    0 30px 60px -20px rgba(5, 150, 105, 0.14),
+    0 12px 24px -10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px) scale(1.005);
+}
+
+/* Subtle Frosted Liquid Glass */
+.liquid-glass-subtle {
+  background: var(--glass-surface-subtle);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border-subtle);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.1),
+    0 12px 30px -10px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s var(--apple-ease);
+}
+
+.liquid-glass-subtle:hover {
+  background: var(--glass-surface-base);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+    0 16px 36px -12px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+}
+
+/* Floating Pill / Capsule Glass (Navbar, Tags, Floating Controls) */
+.liquid-glass-pill {
+  background: rgba(255, 255, 255, 0.76);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 9999px;
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.2),
+    0 16px 32px -12px rgba(0, 0, 0, 0.1),
+    0 4px 8px -2px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s var(--apple-ease);
+}
+
+.liquid-glass-pill:hover {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.25),
+    0 24px 44px -14px rgba(5, 150, 105, 0.16);
+  transform: translateY(-2px);
+}
+
+/* Dark Liquid Obsidian Glass (Footer & Technical Dark Panels) */
+.liquid-glass-dark {
+  background: var(--glass-dark-surface);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid var(--glass-dark-border);
+  box-shadow: 
+    inset 0 1px 1px 0 var(--glass-dark-specular),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.04),
+    0 25px 50px -15px rgba(0, 0, 0, 0.45);
+  transition: all 0.45s var(--apple-ease);
+}
+
+.liquid-glass-dark:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.35),
+    0 35px 60px -20px rgba(0, 0, 0, 0.55),
+    0 0 40px -10px rgba(16, 185, 129, 0.18);
+  transform: translateY(-4px);
+}
+
+/* ==========================================================================
+   WATER-LIKE MOTION, REFRACTION & SURFACE TENSION
+   ========================================================================== */
+
+/* Glare & Liquid Sheen Effect on Hover */
+.liquid-sheen {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.liquid-sheen::after {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    55deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.0) 42%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.0) 58%,
+    transparent 65%
+  );
+  transform: rotate(25deg) translateY(-80%);
+  transition: transform 0.85s var(--apple-ease);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.liquid-sheen:hover::after {
+  transform: rotate(25deg) translateY(40%);
+}
+
+/* Water Droplet / Organic Morphing Blob */
+.liquid-morph-1 {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: morph-water 12s ease-in-out infinite;
+}
+
+.liquid-morph-2 {
+  border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  animation: morph-water 15s ease-in-out infinite reverse;
+}
+
+/* Hardware-Accelerated Animation Classes */
+.hardware-accel {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ==========================================================================
+   ANIMATION KEYFRAMES (Organic Liquid Flow)
+   ========================================================================== */
+@keyframes morph-water {
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  34% {
+    border-radius: 40% 60% 70% 30% / 40% 40% 60% 60%;
+  }
+  67% {
+    border-radius: 70% 30% 50% 50% / 30% 70% 40% 60%;
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+@keyframes liquid-drift-1 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(45px, -60px) scale(1.12) rotate(12deg);
+  }
+  66% {
+    transform: translate(-35px, 40px) scale(0.92) rotate(-8deg);
+  }
+}
+
+@keyframes liquid-drift-2 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(-50px, 50px) scale(1.18) rotate(-15deg);
+  }
+  66% {
+    transform: translate(40px, -30px) scale(0.88) rotate(10deg);
+  }
+}
+
+@keyframes liquid-drift-3 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(30px, 40px) scale(1.22);
+  }
+}
+
+/* Enhanced Continuous Fluid Motion Keyframes */
+@keyframes liquid-flow-1 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(120px, -90px, 0) scale(1.18) rotate(18deg);
+  }
+  50% {
+    transform: translate3d(-80px, 110px, 0) scale(0.92) rotate(-14deg);
+  }
+  75% {
+    transform: translate3d(90px, 60px, 0) scale(1.12) rotate(22deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes liquid-flow-2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  30% {
+    transform: translate3d(-130px, 100px, 0) scale(1.22) rotate(-28deg);
+  }
+  65% {
+    transform: translate3d(100px, -70px, 0) scale(0.88) rotate(20deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes liquid-flow-3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(130px, -110px, 0) scale(1.25) rotate(35deg);
+  }
+}
+
+@keyframes liquid-aurora-sweep {
+  0% {
+    transform: rotate(-15deg) translate3d(-20%, -10%, 0) scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: rotate(15deg) translate3d(20%, 10%, 0) scale(1.2);
+    opacity: 0.65;
+  }
+  100% {
+    transform: rotate(-15deg) translate3d(-20%, -10%, 0) scale(1);
+    opacity: 0.35;
+  }
+}
+
+@keyframes water-bubble-rise {
+  0% {
+    transform: translate3d(0, 105vh, 0) scale(0.5);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(45px, 50vh, 0) scale(1.05);
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(-40px, -10vh, 0) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes caustic-drift {
+  0% {
+    background-position: 0px 0px;
+  }
+  100% {
+    background-position: 120px 120px;
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 4.5s ease-in-out infinite;
+}
+
+.animate-liquid-orb-1 {
+  animation: liquid-flow-1 14s ease-in-out infinite;
+}
+
+.animate-liquid-orb-2 {
+  animation: liquid-flow-2 18s ease-in-out infinite;
+}
+
+.animate-liquid-orb-3 {
+  animation: liquid-flow-3 12s ease-in-out infinite;
+}
+
+.animate-liquid-aurora {
+  animation: liquid-aurora-sweep 22s ease-in-out infinite;
+}
+
+.animate-caustic-drift {
+  animation: caustic-drift 28s linear infinite;
+}
+
+.animate-bubble-1 {
+  animation: water-bubble-rise 11s ease-in-out infinite;
+}
+
+.animate-bubble-2 {
+  animation: water-bubble-rise 14s ease-in-out infinite;
+}
+
+.animate-bubble-3 {
+  animation: water-bubble-rise 17s ease-in-out infinite;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-liquid-orb-1,
+  .animate-liquid-orb-2,
+  .animate-liquid-orb-3,
+  .animate-liquid-aurora,
+  .animate-caustic-drift,
+  .animate-bubble-1,
+  .animate-bubble-2,
+  .animate-bubble-3 {
+    animation: none !important;
+  }
+}
+
+/* Custom Scrollbar for Sleek Apple Look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+  background-clip: padding-box;
 }

@@ -1,68 +1,152 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { Globe, Menu, X, ArrowUpRight, Sparkles } from "lucide-react";
 
 export default function NavbarPublic() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const navLinks = [
+    { href: "/", label: "Beranda" },
+    { href: "/about", label: "Tentang Kami" },
+    { href: "/product", label: "Produk" },
+    { href: "/advantages", label: "Keunggulan" },
+  ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20">
-          <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent">
-              CV Berkat Mandiri
-            </Link>
-          </div>
-          
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition">Beranda</Link>
-            <Link href="/about" className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition">Tentang Kami</Link>
-            <Link href="/product" className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition">Produk</Link>
-            <Link href="/advantages" className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition">Keunggulan</Link>
-            <Link href="/contact" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
-              Hubungi Kami
-            </Link>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="flex items-center md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none transition-colors"
-              aria-label="Toggle Menu"
+    <header className="sticky top-0 z-50 w-full pt-3 px-3 sm:px-6 lg:px-8 transition-all duration-500">
+      <div className="max-w-7xl mx-auto">
+        <nav 
+          aria-label="Navigasi Utama"
+          className={`liquid-glass-pill px-4 sm:px-6 transition-all duration-500 hardware-accel ${
+            scrolled 
+              ? "py-2.5 shadow-xl shadow-slate-900/5 bg-white/80" 
+              : "py-3.5 bg-white/70"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            {/* Logo Brand with Apple-style Jewel Icon */}
+            <Link 
+              href="/" 
+              className="flex items-center gap-2.5 group focus:outline-none"
             >
-              <svg aria-hidden="true" className="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-400 p-[1px] shadow-sm shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-300">
+                <div className="w-full h-full bg-slate-950/80 rounded-[11px] flex items-center justify-center backdrop-blur-md">
+                  <Globe className="w-4 h-4 text-emerald-400 group-hover:rotate-12 transition-transform duration-500" />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-slate-900 via-emerald-950 to-teal-800 bg-clip-text text-transparent group-hover:opacity-90 transition">
+                  CV Berkat Mandiri
+                </span>
+                <span className="text-[9px] font-semibold tracking-widest text-emerald-600 uppercase hidden sm:block">
+                  Global Packaging Exporter
+                </span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <div className="hidden md:flex items-center gap-1 lg:gap-2">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all duration-300 relative ${
+                      isActive 
+                        ? "text-emerald-700 font-semibold bg-emerald-500/15 shadow-inner" 
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-900/5"
+                    }`}
+                  >
+                    {link.label}
+                    {isActive && (
+                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-emerald-600 rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Right Action: CTA Pill with Liquid Sheen */}
+            <div className="hidden md:flex items-center gap-3">
+              <Link
+                href="/contact"
+                className="liquid-sheen relative inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-600/25 border border-white/30 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-600/35 hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <span>Hubungi Kami</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-emerald-100" />
+              </Link>
+            </div>
+
+            {/* Mobile Menu Hamburger Button */}
+            <div className="flex items-center md:hidden">
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors focus:outline-none"
+                aria-label="Toggle Menu"
+              >
+                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Mobile Dropdown Panel: Apple Liquid Glass Sheet */}
+        <div 
+          className={`md:hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
+            isMenuOpen 
+              ? "max-h-[380px] opacity-100 mt-2.5 translate-y-0" 
+              : "max-h-0 opacity-0 -translate-y-2 pointer-events-none"
+          }`}
+        >
+          <div className="liquid-glass rounded-3xl p-4 shadow-2xl border border-white/60 space-y-1.5">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`flex items-center justify-between px-4 py-2.5 rounded-2xl text-sm font-medium transition ${
+                    isActive
+                      ? "bg-emerald-500/15 text-emerald-800 font-bold"
+                      : "text-slate-700 hover:bg-slate-100/70"
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  {isActive && <Sparkles className="w-3.5 h-3.5 text-emerald-600" />}
+                </Link>
+              );
+            })}
+            
+            <div className="pt-2">
+              <Link
+                href="/contact"
+                onClick={() => setIsMenuOpen(false)}
+                className="liquid-sheen w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md shadow-emerald-600/30 border border-white/20 transition active:scale-95"
+              >
+                <span>Hubungi Kami (RFQ)</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Menu - Animasi Halus Tanpa Interupsi DOM */}
-      <div 
-        className={`md:hidden bg-white transition-all duration-300 ease-in-out overflow-hidden shadow-lg ${
-          isMenuOpen 
-            ? "max-h-[320px] opacity-100 border-b border-slate-200" 
-            : "max-h-0 opacity-0 border-b-0 pointer-events-none"
-        }`}
-      >
-        {/* Inner Wrapper untuk mengisolasi padding agar transisi height tidak memantul */}
-        <div className="px-4 pt-2 pb-6 space-y-1">
-          <Link href="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition">Beranda</Link>
-          <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition">Tentang Kami</Link>
-          <Link href="/product" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition">Produk</Link>
-          <Link href="/advantages" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition">Keunggulan</Link>
-          <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="block w-full text-center px-3 py-2.5 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700 mt-4 shadow-sm transition">Hubungi Kami</Link>
-        </div>
       </div>
-    </nav>
+    </header>
   );
 }

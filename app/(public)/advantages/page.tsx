@@ -2,54 +2,39 @@
 
 import { motion } from "framer-motion";
 import React from "react";
+import { ShieldCheck, Factory, BarChart3, Ship, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
 export default function AdvantagesPage() {
   const coreAdvantages = [
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-        </svg>
-      ),
+      icon: <ShieldCheck className="w-6 h-6 text-emerald-600" />,
       title: "Uji Ketahanan & Standar Ekspor",
-      desc: "Setiap batch produksi karung melewati uji tarik, uji beban dinamis, dan ketahanan kelembapan udara. Kami menjamin karung goni dan PP woven tidak mudah robek saat melewati proses handling pelabuhan internasional yang kasar."
+      desc: "Setiap batch produksi karung melewati uji tarik mekanis, uji ketahanan timbunan kargo, serta ketahanan kelembapan cuaca laut. Kami menjamin karung goni dan PP woven tidak mudah robek saat penanganan kasar di dermaga pelabuhan internasional."
     },
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v6a2 2 0 012-2m14-8V7a2 2 0 00-2-2H5a2 2 0 00-2 2v4" />
-        </svg>
-      ),
+      icon: <Factory className="w-6 h-6 text-teal-600" />,
       title: "Skalabilitas & Kontinuitas Produksi",
-      desc: "Dengan infrastruktur mesin anyaman berskala besar, kami menjamin stabilitas pasokan bulanan untuk kontrak kerja jangka panjang perusahaan Anda. Tidak ada hambatan kekurangan kuota di tengah musim panen raya atau puncak logistik."
+      desc: "Didukung lini mesin circular loom berkapasitas tinggi, kami menjamin stabilitas pasokan rutin untuk kontrak jangka panjang korporasi Anda. Bebas hambatan kekurangan kuota saat puncak musim panen raya atau lonjakan logistik komoditas."
     },
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      ),
-      title: "Manajemen Data & Analitik Transparan",
-      desc: "Kami mendobrak cara lama penjualan karung konvensional. Sistem manajemen berbasis data kami mencatat rekam transaksi, riwayat RFQ, bill of lading, serta statistik pengapalan Anda secara rapi, meminimalisir kesalahan administrasi audit kargo."
+      icon: <BarChart3 className="w-6 h-6 text-cyan-600" />,
+      title: "Manajemen Data & Rekam Jejak Digital",
+      desc: "Kami memperbarui tata kelola penjualan karung konvensional. Sistem manajemen data kami mencatat riwayat transaksi, status RFQ, manifes pengapalan, dan statistik kargo secara transparan untuk memudahkan audit logistik klien."
     },
     {
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h2a2.5 2.5 0 002.5-2.5V6.265M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      icon: <Ship className="w-6 h-6 text-emerald-600" />,
       title: "Logistik Fleksibel (FCL / LCL)",
-      desc: "Kami memiliki jaringan ekspedisi pengapalan internasional yang andal. Kami melayani pengiriman satu kontainer penuh (Full Container Load) maupun pengiriman parsial gabungan (Less Container Load) ke berbagai pelabuhan utama dunia."
+      desc: "Bekerja sama erat dengan shipping line terkemuka melalui Port of Loading Tanjung Priok (IDTPP), kami melayani pengapalan kontainer penuh (Full Container Load) maupun pengiriman parsial gabungan (Less Container Load) ke berbagai pelabuhan utama dunia."
     }
   ];
 
-  // Penulisan Varian Animasi dengan struktur 'as const'
   const fadeInUp = {
     hidden: { opacity: 0, y: 35 },
     visible: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.6, ease: "easeOut" } 
+      transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } 
     },
   } as const;
 
@@ -57,113 +42,122 @@ export default function AdvantagesPage() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15 },
+      transition: { staggerChildren: 0.12 },
     },
   } as const;
 
-  const scaleIn = {
-    hidden: { opacity: 0, scale: 0.96 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  } as const;
-
   return (
-    <div className="w-full bg-slate-50 overflow-hidden">
+    <div className="w-full relative z-10 py-6 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16 sm:space-y-24">
       
-      {/* HERO SECTION */}
-      <section className="bg-white border-b border-slate-200 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      {/* =====================================================================
+          HERO SECTION (Apple Vision Liquid Glass Split Plate)
+          ===================================================================== */}
+      <section className="relative">
+        <div className="liquid-glass rounded-[36px] sm:rounded-[44px] p-8 sm:p-12 lg:p-16 border border-white/80 shadow-2xl relative overflow-hidden">
           
-          {/* Kolon Teks Kiri */}
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="space-y-6"
-          >
+          {/* Ambient Lighting Orbs */}
+          <div className="absolute -top-32 -left-32 w-80 h-80 bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-teal-400/20 rounded-full blur-[100px] pointer-events-none" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center relative z-10">
+            
+            {/* Left Narrative */}
             <motion.div 
-              variants={fadeInUp}
-              className="inline-flex items-center space-x-2 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full text-xs font-semibold tracking-wide uppercase"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+              className="lg:col-span-7 space-y-5"
             >
-              <span>Efisiensi & Integritas B2B</span>
+              <motion.div variants={fadeInUp}>
+                <div className="liquid-glass-pill inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-800">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Keunggulan Kompetitif B2B</span>
+                </div>
+              </motion.div>
+              
+              <motion.h1 
+                variants={fadeInUp} 
+                className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight"
+              >
+                Keunggulan Standar Ekspor Karung Goni & Plastik PP Woven <br />
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-teal-800 bg-clip-text text-transparent">
+                  CV Berkat Mandiri
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                variants={fadeInUp} 
+                className="text-slate-600 text-sm sm:text-base leading-relaxed"
+              >
+                Pengadaan karung skala kontainer untuk komoditas bernilai tinggi membutuhkan kepastian rantai pasok yang kokoh. CV Berkat Mandiri memadukan manufaktur fisik berstandar ekspor dengan manajemen administrasi data modern.
+              </motion.p>
             </motion.div>
             
-            <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Standar Keandalan Baru Dalam <br />
-              <span className="text-emerald-600">Industri Pengemasan Massal</span>
-            </motion.h1>
-            
-            <motion.p variants={fadeInUp} className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Membeli karung dalam skala kontainer untuk komoditas bernilai tinggi membutuhkan kepastian rantai pasok yang kokoh. CV Berkat Mandiri mengintegrasikan manufaktur produk fisik berkualitas tinggi dengan sistem pengelolaan administrasi berbasis data modern.
-            </motion.p>
-          </motion.div>
-          
-          {/* Box Kanan (Komitmen Layanan) */}
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={scaleIn}
-            className="bg-gradient-to-tr from-slate-900 to-slate-800 rounded-3xl p-8 text-white space-y-6 shadow-xl border border-slate-700 relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
-            <h3 className="text-lg font-bold text-emerald-400">Komitmen Layanan Ekspor Kami:</h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-500 mt-0.5">✔</span>
-                <p><span className="font-bold">Pemberian Sampel Gratis</span>: Pengujian fisik bahan sebelum kontraktual ditandatangan.</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-500 mt-0.5">✔</span>
-                <p><span className="font-bold">Proteksi Dokumen Ekspor</span>: Kepastian kelengkapan Certificate of Origin, Phytosanitary, dan Bea Cukai.</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-500 mt-0.5">✔</span>
-                <p><span className="font-bold">Kustomisasi Fleksibel</span>: Penyesuaian density anyaman, gramatur kain, serta variasi ukuran luar banyal.</p>
-              </li>
-            </ul>
-          </motion.div>
+            {/* Right Glass Commitment Box */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-5 liquid-glass-dark rounded-3xl p-7 sm:p-8 text-white space-y-5 shadow-xl border border-white/15 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+              <h3 className="text-base font-bold text-emerald-400">Komitmen Layanan Ekspor Kami:</h3>
+              <ul className="space-y-3.5 text-xs sm:text-sm text-slate-200">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <p><span className="font-bold text-white">Sampel Fisik Gratis</span>: Uji coba ketahanan material sebelum penandatanganan kontrak.</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <p><span className="font-bold text-white">Kelengkapan Dokumen</span>: Jaminan legalitas Certificate of Origin, Phytosanitary, dan Bea Cukai.</p>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <p><span className="font-bold text-white">Kustomisasi Fleksibel</span>: Penyesuaian density rajutan benang, gramatur kain, dan cetak logo merk.</p>
+                </li>
+              </ul>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
-      {/* DETAILED ADVANTAGES GRID */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* =====================================================================
+          PILAR KOMPETITIF (Bento Grid)
+          ===================================================================== */}
+      <section className="space-y-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center max-w-2xl mx-auto mb-16 space-y-3"
+          className="text-center max-w-2xl mx-auto space-y-3"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Pilar Kompetitif CV Berkat Mandiri
           </h2>
-          <p className="text-slate-500 text-sm sm:text-base">
-            Bagaimana sistem operasional kami menguntungkan struktur efisiensi biaya dan keamanan logistik korporasi Anda.
+          <p className="text-slate-700 font-medium text-sm sm:text-base">
+            Bagaimana sistem operasional terintegrasi kami mengoptimalkan efisiensi biaya dan keamanan kargo Anda.
           </p>
         </motion.div>
 
-        {/* Grid Container Utama dengan Staggered Effect */}
         <motion.div 
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={staggerContainer}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8"
         >
           {coreAdvantages.map((advantage, index) => (
             <motion.div 
               key={index} 
               variants={fadeInUp}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm hover:border-emerald-500/30 hover:shadow-md transition-shadow flex flex-col sm:flex-row gap-6 items-start"
+              className="liquid-glass p-8 sm:p-9 rounded-[32px] border border-white/70 shadow-lg flex flex-col sm:flex-row gap-6 items-start group hover:border-emerald-500/40"
             >
-              <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+              <div className="w-13 h-13 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0 shadow-inner">
                 {advantage.icon}
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-bold text-slate-900">{advantage.title}</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900">{advantage.title}</h3>
                 <p className="text-slate-600 text-sm leading-relaxed">{advantage.desc}</p>
               </div>
             </motion.div>
@@ -171,80 +165,111 @@ export default function AdvantagesPage() {
         </motion.div>
       </section>
 
-      {/* METODE PENGAWASAN (QC) TIMELINE */}
-      <section className="bg-slate-900 text-white py-20 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      {/* =====================================================================
+          ALUR PENGAWASAN MUTU (Quality Assurance 4-Step Flow)
+          ===================================================================== */}
+      <section className="relative">
+        <div className="liquid-glass-dark rounded-[36px] sm:rounded-[44px] p-8 sm:p-14 lg:p-16 border border-white/15 text-white space-y-12 shadow-2xl relative overflow-hidden">
           
+          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none" />
+
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto space-y-3"
+            className="text-center max-w-2xl mx-auto space-y-3 relative z-10"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Alur Pengawasan Mutu (Quality Assurance)</h2>
-            <p className="text-slate-400 text-sm">Menjamin presisi ukuran dan kekuatan fisik karung di setiap lembar pesanan Anda.</p>
+            <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+              Zero-Defect Quality Assurance
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Alur Pengawasan Mutu (Quality Control)
+            </h2>
+            <p className="text-slate-300 text-xs sm:text-sm">
+              Memastikan presisi ukuran, kerapatan anyaman, dan kekuatan fisik karung di setiap lembar pesanan Anda.
+            </p>
           </motion.div>
 
-          {/* Grid Tahap Berurutan */}
+          {/* 4-Step Cards Grid */}
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10"
           >
-            <motion.div variants={fadeInUp} className="space-y-3 relative z-10 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50">
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Tahap 01</div>
+            <motion.div variants={fadeInUp} className="liquid-glass-subtle bg-white/[0.04] p-6 rounded-2xl border border-white/10 space-y-3">
+              <span className="inline-block text-[11px] font-bold text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Tahap 01
+              </span>
               <h4 className="text-base font-bold text-white">Inspeksi Serat Benang</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">Pengujian elastisitas biji plastik PP murni dan ketebalan anyaman serat alami tanaman goni sebelum masuk mesin rajut.</p>
+              <p className="text-slate-300 text-xs leading-relaxed">
+                Pengujian elastisitas biji plastik PP murni dan ketebalan serat tanaman goni alami sebelum proses penenunan.
+              </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="space-y-3 relative z-10 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50">
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Tahap 02</div>
-              <h4 className="text-base font-bold text-white">Kalibrasi Kerapatan Poros</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">Monitoring otomatis presisi anyaman benang (mesh density) untuk mencegah risiko kebocoran isi produk tepung atau butiran halus.</p>
+            <motion.div variants={fadeInUp} className="liquid-glass-subtle bg-white/[0.04] p-6 rounded-2xl border border-white/10 space-y-3">
+              <span className="inline-block text-[11px] font-bold text-teal-400 bg-teal-500/15 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Tahap 02
+              </span>
+              <h4 className="text-base font-bold text-white">Kalibrasi Kerapatan Mesh</h4>
+              <p className="text-slate-300 text-xs leading-relaxed">
+                Monitoring presisi anyaman benang (mesh density) untuk mencegah risiko kebocoran isi tepung atau butiran halus.
+              </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="space-y-3 relative z-10 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50">
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Tahap 03</div>
-              <h4 className="text-base font-bold text-white">Uji Beban & Kekuatan Jahitan</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">Sampel karung diisi muatan penuh sesuai kapasitas maksimal, lalu diletakkan pada alat simulasi guncangan logistik kontainer kapal.</p>
+            <motion.div variants={fadeInUp} className="liquid-glass-subtle bg-white/[0.04] p-6 rounded-2xl border border-white/10 space-y-3">
+              <span className="inline-block text-[11px] font-bold text-cyan-400 bg-cyan-500/15 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Tahap 03
+              </span>
+              <h4 className="text-base font-bold text-white">Uji Beban & Jahitan</h4>
+              <p className="text-slate-300 text-xs leading-relaxed">
+                Sampel diisi beban maksimal dan diuji guncangan untuk menyimulasikan dinamika logistik kargo laut internasional.
+              </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="space-y-3 relative z-10 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50">
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Tahap 04</div>
-              <h4 className="text-base font-bold text-white">Pengepakan Bale & Press</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">Karung dipress padat ke dalam kemasan bale besar berlapis pelindung luar kedap air untuk memaksimalkan efisiensi kubikasi ruang kontainer.</p>
+            <motion.div variants={fadeInUp} className="liquid-glass-subtle bg-white/[0.04] p-6 rounded-2xl border border-white/10 space-y-3">
+              <span className="inline-block text-[11px] font-bold text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Tahap 04
+              </span>
+              <h4 className="text-base font-bold text-white">Pengepakan Bale Press</h4>
+              <p className="text-slate-300 text-xs leading-relaxed">
+                Karung dipress padat ke dalam kemasan bale berlapis pelindung kedap air untuk memaksimalkan efisiensi kontainer.
+              </p>
             </motion.div>
           </motion.div>
+
         </div>
       </section>
 
-      {/* FINAL CALL TO ACTION */}
-      <motion.section 
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={fadeInUp}
-        className="bg-white py-20 text-center border-b border-slate-200"
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Ingin Menguji Kualitas Karung Kami Secara Langsung?</h2>
+      {/* =====================================================================
+          FINAL CALL TO ACTION
+          ===================================================================== */}
+      <section className="relative text-center">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={fadeInUp}
+          className="liquid-glass rounded-[36px] p-8 sm:p-12 border border-white/80 shadow-xl max-w-4xl mx-auto space-y-6"
+        >
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Ingin Menguji Kualitas Material Karung Kami Secara Langsung?
+          </h2>
           <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto">
-            Kami siap mengirimkan sampel fisik material karung ke alamat kantor atau gudang operasional perusahaan Anda secara instan.
+            Kami siap mengirimkan sampel fisik material karung langsung ke alamat kantor atau gudang operasional perusahaan Anda.
           </p>
           <div className="pt-2">
-            <motion.a 
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
+            <Link
               href="/contact" 
-              className="inline-flex items-center justify-center px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition-colors text-sm"
+              className="liquid-sheen inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-full text-sm shadow-xl shadow-emerald-600/30 border border-white/30 transition active:scale-95"
             >
-              Ajukan Permintaan Sampel & Negosiasi Harga (RFQ)
-            </motion.a>
+              <span>Ajukan Permintaan Sampel Fisik & RFQ</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-        </div>
-      </motion.section>
+        </motion.div>
+      </section>
 
     </div>
   );

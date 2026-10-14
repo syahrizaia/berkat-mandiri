@@ -1,4 +1,4 @@
-import { Edit3, Printer } from "lucide-react";
+import { Edit3, Printer, Truck, CheckCircle2, Clock } from "lucide-react";
 import { SaleWithRelations } from "../page";
 
 export default function DeliveryTable({ 
@@ -17,7 +17,7 @@ export default function DeliveryTable({
         <body onload="window.print(); window.close();" style="font-family: sans-serif; padding: 40px; color: #333;">
           <div style="text-align: center; border-bottom: 3px double #333; padding-bottom: 15px;">
             <h2>CV BERKAT MANDIRI</h2>
-            <p>Manifes Gudang Plastik & Logistik Terintegrasi</p>
+            <p>Manifes Gudang Karung & Logistik Terintegrasi</p>
           </div>
           <h3 style="text-align: center; text-decoration: underline; margin-top:20px;">SURAT JALAN PENGIRIMAN</h3>
           <p style="text-align: center">Nomor Dokumen: ${item.delivery?.suratJalanNo || `SJ-${item.invoiceNumber}`}</p>
@@ -44,111 +44,93 @@ export default function DeliveryTable({
     printWindow.document.close();
   };
 
+  const getStatusBadge = (status?: string | null) => {
+    switch (status) {
+      case "DITERIMA":
+        return "bg-emerald-500/15 text-emerald-800 border-emerald-500/25";
+      case "DIKIRIM":
+        return "bg-blue-500/15 text-blue-800 border-blue-500/25";
+      case "DIPROSES":
+      default:
+        return "bg-amber-500/15 text-amber-800 border-amber-500/25";
+    }
+  };
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="liquid-glass rounded-[32px] border border-white/70 shadow-lg overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm border-collapse">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
+        <table className="w-full text-left text-xs sm:text-sm">
+          <thead className="bg-slate-100/70 border-b border-slate-200/70 text-slate-800 font-bold uppercase tracking-wider text-[11px]">
             <tr>
-              <th className="px-6 py-3.5">No. Surat Jalan</th>
-              <th className="px-6 py-3.5">Tujuan Bongkar</th>
-              <th className="px-6 py-3.5">Armada Driver</th>
-              <th className="px-6 py-3.5 text-center">Kuantitas Muat</th>
-              <th className="px-6 py-3.5 text-center">Status Distribusi</th>
-              <th className="px-6 py-3.5 text-right">Aksi</th>
+              <th className="py-4 px-6">No. Surat Jalan</th>
+              <th className="py-4 px-6">Tujuan Bongkar & Customer</th>
+              <th className="py-4 px-6">Armada / Driver</th>
+              <th className="py-4 px-6 text-center">Kuantitas Muat</th>
+              <th className="py-4 px-6 text-center">Status Distribusi</th>
+              <th className="py-4 px-6 text-right">Aksi Dokumen</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-            {sales.map((item) => {
-              const isDelivered = item.delivery?.status === "DITERIMA";
-              const isShipped = item.delivery?.status === "DIKIRIM";
-              const hasDriver = !!item.delivery?.driverName;
-
-              return (
-                <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                  {/* No Surat Jalan */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`text-xs font-mono font-bold px-2 py-1 rounded ${
-                      item.delivery?.suratJalanNo 
-                        ? "bg-slate-100 text-slate-800" 
-                        : "bg-amber-50 text-amber-700 border border-amber-100"
-                    }`}>
-                      {item.delivery?.suratJalanNo || "BELUM DIPROSES"}
-                    </span>
-                  </td>
-
-                  {/* Tujuan Bongkar */}
-                  <td className="px-6 py-4">
-                    <span className="block font-semibold text-slate-900">{item.customerName}</span>
-                    <span className="text-xs text-slate-400 block max-w-xs truncate mt-0.5" title={item.delivery?.deliveryAddress || ""}>
-                      {item.delivery?.deliveryAddress || "Alamat belum ditentukan"}
-                    </span>
-                  </td>
-
-                  {/* Armada Driver */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {hasDriver ? (
-                      <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-slate-800 text-sm">{item.delivery?.driverName}</span>
-                        <span className="self-start text-[11px] bg-slate-100 px-2 py-0.5 rounded font-mono text-slate-600 border border-slate-200/60">
-                          {item.delivery?.plateNumber || "-"}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-slate-400 italic">Belum Ditunjuk</span>
-                    )}
-                  </td>
-
-                  {/* Kuantitas Muat */}
-                  <td className="px-6 py-4 text-center whitespace-nowrap">
-                    <span className="text-sm font-bold text-slate-900">{item.quantity.toLocaleString()}</span>
-                    <span className="text-xs text-slate-500 font-normal"> lbr</span>
-                    <span className="block text-[11px] text-slate-400 font-normal mt-0.5">
-                    {item.bagType?.name || "Tipe Karung Tidak Terdefinisi"}
-                    </span>
-                  </td>
-
-                  {/* Status Distribusi */}
-                  <td className="px-6 py-4 text-center whitespace-nowrap">
-                    <span className={`inline-flex items-center text-[11px] px-2.5 py-1 rounded-full font-bold uppercase border tracking-wide ${
-                      isDelivered 
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200/60" 
-                        : isShipped 
-                          ? "bg-blue-50 text-blue-700 border-blue-200/60" 
-                          : "bg-amber-50 text-amber-700 border-amber-200/60"
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                        isDelivered ? "bg-emerald-500" : isShipped ? "bg-blue-500" : "bg-amber-500"
-                      }`} />
-                      {item.delivery?.status || "DIPROSES"}
-                    </span>
-                  </td>
-
-                  {/* Aksi */}
-                  <td className="px-6 py-4 text-right whitespace-nowrap">
-                    <div className="flex justify-end items-center gap-2">
-                      <button 
-                        onClick={() => onManageDriver(item)} 
-                        className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" /> 
-                        Atur Jalan
-                      </button>
-                      
-                      <button 
-                        onClick={() => triggerPrintSuratJalan(item)} 
-                        disabled={!hasDriver} 
-                        className="bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed px-3 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 shadow-sm shadow-emerald-600/10 transition-all"
-                        title={!hasDriver ? "Tunjuk driver terlebih dahulu untuk mencetak" : "Cetak Surat Jalan"}
-                      >
-                        <Printer className="w-3.5 h-3.5" /> 
-                        Cetak SJ
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+          <tbody className="divide-y divide-slate-200/50 font-medium text-slate-800">
+            {sales.map((item) => (
+              <tr key={item.id} className="hover:bg-white/60 transition-colors">
+                <td className="py-4 px-6">
+                  <span className="font-mono font-bold text-slate-950 block">
+                    {item.delivery?.suratJalanNo || `SJ-${item.invoiceNumber}`}
+                  </span>
+                  <span className="text-[11px] text-slate-600 font-semibold block mt-0.5">
+                    Ref: {item.invoiceNumber}
+                  </span>
+                </td>
+                <td className="py-4 px-6">
+                  <span className="font-bold text-slate-950 block">{item.customerName}</span>
+                  <span className="text-xs text-slate-700 line-clamp-1 mt-0.5 font-medium">
+                    {item.delivery?.deliveryAddress || "Alamat gudang belum diinput"}
+                  </span>
+                </td>
+                <td className="py-4 px-6 text-xs text-slate-800">
+                  <span className="font-semibold text-slate-900 block">
+                    {item.delivery?.driverName || "Driver belum ditugaskan"}
+                  </span>
+                  <span className="font-mono text-[10px] text-slate-600 block mt-0.5 uppercase font-bold">
+                    {item.delivery?.plateNumber || "No Plat: -"}
+                  </span>
+                </td>
+                <td className="py-4 px-6 text-center font-mono font-bold text-slate-950">
+                  {item.quantity.toLocaleString()}{" "}
+                  <span className="text-xs text-slate-600 font-semibold">lbr</span>
+                </td>
+                <td className="py-4 px-6 text-center">
+                  <span className={`inline-block text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider border ${getStatusBadge(item.delivery?.status)}`}>
+                    {item.delivery?.status || "DIPROSES"}
+                  </span>
+                </td>
+                <td className="py-4 px-6 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button 
+                      onClick={() => onManageDriver(item)} 
+                      className="p-2 text-slate-700 hover:text-slate-950 hover:bg-slate-200/60 rounded-xl transition"
+                      title="Edit Armada & Alamat"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => triggerPrintSuratJalan(item)} 
+                      className="p-2 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50 rounded-xl transition"
+                      title="Cetak Surat Jalan Fisik"
+                    >
+                      <Printer className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {sales.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-12 text-center text-slate-700 text-xs font-semibold">
+                  Belum ada catatan jadwal pengiriman logistik pada periode ini.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

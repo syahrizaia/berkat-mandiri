@@ -16,7 +16,7 @@ export default function NotFound() {
         <div className="space-y-2">
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">404</h1>
           <h2 className="text-xl font-semibold text-slate-800">Halaman Tidak Ditemukan</h2>
-          <p className="text-slate-500 leading-relaxed">
+          <p className="text-slate-700 font-medium leading-relaxed">
             Maaf, halaman yang Anda cari tidak tersedia atau mungkin sudah dipindahkan. 
             Pastikan URL yang Anda masukkan sudah benar.
           </p>
@@ -43,7 +43,7 @@ export default function NotFound() {
       </div>
       
       {/* Footer Ringan */}
-      <p className="absolute bottom-6 text-slate-400 text-xs">
+      <p className="absolute bottom-6 text-slate-600 text-xs font-semibold">
         &copy; {new Date().getFullYear()} CV Berkat Mandiri
       </p>
     </div>

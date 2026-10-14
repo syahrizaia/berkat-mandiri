@@ -5,15 +5,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Printer, FileText, Truck } from "lucide-react";
+import { Plus, Printer, FileText, Truck, Sparkles, Filter } from "lucide-react";
 
-// Impor Sub-Komponen Terpisah
+// Sub-komponen
 import SalesMetrics from "./_components/SalesMetrics";
 import SalesTable from "./_components/SalesTable";
 import DeliveryTable from "./_components/DeliveryTable";
 import SaleModalForm from "./_components/SaleModalForm";
 
-// Type Definition Sesuai Relasi Prisma (Neon.tech)
 export interface SaleWithRelations {
   id: string;
   invoiceNumber: string;
@@ -41,7 +40,7 @@ export interface SaleWithRelations {
 
 export default function SalesPage() {
   const [sales, setSales] = useState<SaleWithRelations[]>([]);
-  const [bagTypes, setBagTypes] = useState<any[]>([]); // Untuk Opsi Select Dropdown
+  const [bagTypes, setBagTypes] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"sales" | "delivery">("sales");
   const [timeframe, setTimeframe] = useState<"hari" | "pekan" | "bulan" | "tahun">("bulan");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,7 +56,6 @@ export default function SalesPage() {
         throw new Error(`Dashboard API bermasalah (Status: ${resDashboard.status})`);
       }
 
-      // Pastikan response berupa JSON sebelum di-parse
       const contentTypeStr = resDashboard.headers.get("content-type");
       if (!contentTypeStr || !contentTypeStr.includes("application/json")) {
         throw new Error("Dashboard API tidak mengembalikan JSON!");
@@ -65,36 +63,21 @@ export default function SalesPage() {
 
       const resData = await resDashboard.json();
       
-      // Ambil array sales secara aman dari payload dashboard
-      if (resData && resData.success && resData.data && Array.isArray(resData.data.sales)) {
-        setSales(resData.data.sales);
-      } else {
-        console.warn("Format data sales di dalam dashboard tidak sesuai.");
-        setSales([]);
-      }
-
-        if (resData && resData.success && resData.data) {
-            
-            // A. Set State Sales
-            if (Array.isArray(resData.data.sales)) {
-            setSales(resData.data.sales);
-            } else {
-            setSales([]);
-            }
-
-            // B. Set State Tipe Karung (Diambil dari stockPredictions)
-            if (Array.isArray(resData.data.stockPredictions)) {
-            setBagTypes(resData.data.stockPredictions);
-            } else {
-            console.warn("Properti stockPredictions tidak ditemukan atau bukan array.");
-            setBagTypes([]);
-            }
-
+      if (resData && resData.success && resData.data) {
+        if (Array.isArray(resData.data.sales)) {
+          setSales(resData.data.sales);
+        } else {
+          setSales([]);
         }
-      
+
+        if (Array.isArray(resData.data.stockPredictions)) {
+          setBagTypes(resData.data.stockPredictions);
+        } else {
+          setBagTypes([]);
+        }
+      }
     } catch (error) {
       console.error("Gagal memuat data operasional:", error);
-      // Jika error, paksa state kembali ke array kosong agar UI tidak crash (.reduce tetap jalan)
       setSales([]);
       setBagTypes([]);
     } finally {
@@ -110,7 +93,7 @@ export default function SalesPage() {
     if (confirm("Hapus transaksi? Data Surat Jalan & Buku Kas terkait akan ikut terhapus otomatis.")) {
       try {
         await fetch(`/api/admin/sales/${id}`, { method: "DELETE" });
-        fetchData(); // Refresh data dari server
+        fetchData();
       } catch (error) {
         alert("Gagal menghapus data");
       }
@@ -144,23 +127,34 @@ export default function SalesPage() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6 bg-slate-50 min-h-screen">
+    <div className="space-y-8">
       
-      {/* HEADER CONTROL PANEL */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 pb-5">
+      {/* HEADER CONTROL PANEL (Apple Liquid Glass Banner) */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/70 shadow-lg flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Manajemen Penjualan & Logistik</h1>
-          <p className="text-sm text-slate-500">Koneksi data live Neon.tech PostgreSQL.</p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-emerald-800 text-xs font-bold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Commercial Sales & Logistics Hub</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Manajemen Penjualan & DO
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Faktur komersial, pencatatan otomatis surat jalan, & pelacakan status kargo (Neon PostgreSQL)
+          </p>
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm text-xs font-bold">
+          {/* Timeframe Filter Pill */}
+          <div className="liquid-glass-pill p-1.5 flex gap-1 shadow-inner border border-white/60">
             {(["hari", "pekan", "bulan", "tahun"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTimeframe(t)}
-                className={`px-3 py-1.5 rounded-lg capitalize transition-all ${
-                  timeframe === t ? "bg-emerald-600 text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-300 capitalize ${
+                  timeframe === t 
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20" 
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 {t}
@@ -168,50 +162,90 @@ export default function SalesPage() {
             ))}
           </div>
 
-          <button onClick={printLaporanBerkala} className="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm">
-            <Printer className="w-4 h-4 text-slate-500" /> Cetak Rekap
+          <button 
+            onClick={printLaporanBerkala} 
+            className="inline-flex items-center gap-2 bg-white/70 hover:bg-white text-slate-800 border border-slate-200/80 font-bold py-2.5 px-4 rounded-full text-xs sm:text-sm transition shadow-sm"
+          >
+            <Printer className="w-4 h-4 text-slate-500" /> 
+            <span>Cetak Rekap</span>
           </button>
 
-          <button onClick={() => { setEditingSale(null); setIsModalOpen(true); }} className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm">
-            <Plus className="w-4 h-4" /> Tambah Transaksi
+          <button 
+            onClick={() => { setEditingSale(null); setIsModalOpen(true); }} 
+            className="liquid-sheen inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2.5 px-5 rounded-full text-xs sm:text-sm shadow-md shadow-emerald-600/25 border border-white/25 transition active:scale-95"
+          >
+            <Plus className="w-4 h-4" /> 
+            <span>Tambah Transaksi</span>
           </button>
         </div>
       </div>
 
-      {/* COMPONENT 1: METRIK STATISTIK */}
+      {/* METRIK STATISTIK PENJUALAN */}
       <SalesMetrics sales={sales} />
 
-      {/* TABS MENU */}
-      <div className="flex border-b border-slate-200 gap-2">
-        <button onClick={() => setActiveTab("sales")} className={`pb-3 px-4 font-bold text-sm border-b-2 transition-all flex items-center gap-2 ${activeTab === "sales" ? "border-emerald-600 text-emerald-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
-          <FileText className="w-4 h-4" /> Invoice Penjualan
+      {/* SEGMENTED TABS MENU (Apple Glass Tabs) */}
+      <div className="liquid-glass-pill p-1.5 inline-flex gap-1.5 border border-white/60 shadow-sm">
+        <button 
+          onClick={() => setActiveTab("sales")} 
+          className={`py-2 px-5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 flex items-center gap-2 ${
+            activeTab === "sales" 
+              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20" 
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <FileText className="w-4 h-4" /> 
+          <span>Invoice Penjualan</span>
         </button>
-        <button onClick={() => setActiveTab("delivery")} className={`pb-3 px-4 font-bold text-sm border-b-2 transition-all flex items-center gap-2 ${activeTab === "delivery" ? "border-emerald-600 text-emerald-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
-          <Truck className="w-4 h-4" /> Logistik Surat Jalan
+
+        <button 
+          onClick={() => setActiveTab("delivery")} 
+          className={`py-2 px-5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 flex items-center gap-2 ${
+            activeTab === "delivery" 
+              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20" 
+              : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <Truck className="w-4 h-4" /> 
+          <span>Logistik Surat Jalan</span>
         </button>
       </div>
 
-      {/* KONDISI LOADING */}
+      {/* KONDISI LOADING ATAU CONTENT */}
       {isLoading ? (
-        <div className="text-center py-10 font-medium text-slate-500">Menghubungkan ke Neon Database...</div>
+        <div className="liquid-glass rounded-3xl p-12 text-center border border-white/70 shadow-sm flex flex-col items-center justify-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-emerald-500 border-t-transparent" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Sinkronisasi Database Neon.tech...</span>
+        </div>
       ) : (
         <>
-          {/* COMPONENT 2: TABEL INVOICE PENJUALAN */}
           {activeTab === "sales" && (
-            <SalesTable sales={sales} onEdit={(sale) => { setEditingSale(sale); setIsModalOpen(true); }} onDelete={handleDelete} />
+            <SalesTable 
+              sales={sales} 
+              onEdit={(sale) => { setEditingSale(sale); setIsModalOpen(true); }} 
+              onDelete={handleDelete} 
+            />
           )}
 
-          {/* COMPONENT 3: TABEL SURAT JALAN / DELIVERY */}
           {activeTab === "delivery" && (
-            <DeliveryTable sales={sales} onManageDriver={(sale) => { setEditingSale(sale); setIsModalOpen(true); }} />
+            <DeliveryTable 
+              sales={sales} 
+              onManageDriver={(sale) => { setEditingSale(sale); setIsModalOpen(true); }} 
+            />
           )}
         </>
       )}
 
-      {/* COMPONENT 4: MODAL FORM PENJUALAN & LOGISTIK */}
+      {/* POP-UP MODAL: FORM PENJUALAN & LOGISTIK */}
       {isModalOpen && (
-        <SaleModalForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} editingSale={editingSale} bagTypes={bagTypes} refreshData={fetchData} />
+        <SaleModalForm 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          editingSale={editingSale} 
+          bagTypes={bagTypes} 
+          refreshData={fetchData} 
+        />
       )}
+
     </div>
   );
 }

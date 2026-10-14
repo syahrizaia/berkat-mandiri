@@ -1,0 +1,126 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+
+    <!-- Emerald / Teal Radial Glows -->
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(200 150) rotate(90) scale(400)">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1000 450) rotate(90) scale(450)">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Brand Linear Gradient -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#6ee7b7"/>
+    </linearGradient>
+
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="200" cy="150" r="400" fill="url(#glow1)"/>
+  <circle cx="1000" cy="450" r="450" fill="url(#glow2)"/>
+
+  <!-- Subtle Grid Lines -->
+  <g opacity="0.08" stroke="#ffffff" stroke-width="1">
+    <line x1="100" y1="0" x2="100" y2="630"/>
+    <line x1="300" y1="0" x2="300" y2="630"/>
+    <line x1="500" y1="0" x2="500" y2="630"/>
+    <line x1="700" y1="0" x2="700" y2="630"/>
+    <line x1="900" y1="0" x2="900" y2="630"/>
+    <line x1="1100" y1="0" x2="1100" y2="630"/>
+    <line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="500" x2="1200" y2="500"/>
+  </g>
+
+  <!-- Outer Glass Frame -->
+  <rect x="50" y="50" width="1100" height="530" rx="36" fill="url(#cardGrad)" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/>
+
+  <!-- Top Badge -->
+  <g transform="translate(90, 95)">
+    <rect width="360" height="42" rx="21" fill="#059669" fill-opacity="0.2" stroke="#10b981" stroke-opacity="0.4"/>
+    <circle cx="22" cy="21" r="5" fill="#34d399"/>
+    <text x="36" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#a7f3d0" letter-spacing="2">
+      PRODUSEN &amp; EKSPORTIR RESMI B2B
+    </text>
+  </g>
+
+  <!-- Main Headline Title -->
+  <text x="90" y="210" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="62" font-weight="900" fill="url(#textGrad)" letter-spacing="-1">
+    CV Berkat Mandiri
+  </text>
+  <text x="90" y="270" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="600" fill="#94a3b8" letter-spacing="0">
+    Supplier Karung Goni &amp; Karung Plastik Woven PP Standar Ekspor
+  </text>
+
+  <!-- Product Feature Cards -->
+  <g transform="translate(90, 320)">
+    <!-- Card 1: Goni -->
+    <rect x="0" y="0" width="310" height="130" rx="20" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.12"/>
+    <circle cx="35" cy="40" r="15" fill="#059669" fill-opacity="0.3"/>
+    <text x="35" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="bold" fill="#34d399" text-anchor="middle">✓</text>
+    <text x="65" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="800" fill="#ffffff">
+      Karung Goni B-Twill
+    </text>
+    <text x="25" y="85" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+      100% serat alami ramah lingkungan
+    </text>
+    <text x="25" y="105" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+      Kapasitas 25 - 60 kg kopi/kakao
+    </text>
+
+    <!-- Card 2: PP Woven -->
+    <rect x="340" y="0" width="320" height="130" rx="20" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.12"/>
+    <circle cx="375" cy="40" r="15" fill="#0d9488" fill-opacity="0.3"/>
+    <text x="375" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="bold" fill="#2dd4bf" text-anchor="middle">✓</text>
+    <text x="405" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="800" fill="#ffffff">
+      Karung Plastik PP Woven
+    </text>
+    <text x="365" y="85" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+      Densitas 600 - 1000+ Denier
+    </text>
+    <text x="365" y="105" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+      Anti-slip &amp; opsi inner liner PE
+    </text>
+
+    <!-- Card 3: Laminasi BOPP -->
+    <rect x="690" y="0" width="330" height="130" rx="20" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.12"/>
+    <circle cx="725" cy="40" r="15" fill="#0284c7" fill-opacity="0.3"/>
+    <text x="725" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="bold" fill="#38bdf8" text-anchor="middle">✓</text>
+    <text x="755" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="800" fill="#ffffff">
+      Karung Laminasi BOPP
+    </text>
+    <text x="715" y="85" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+      Cetak Rotogravure Full Color HD
+    </text>
+    <text x="715" y="105" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+      100% Waterproof kemasan retail
+    </text>
+  </g>
+
+  <!-- Bottom Bar Info -->
+  <g transform="translate(90, 500)">
+    <text x="0" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#64748b">
+      PELABUHAN MUAT: TANJUNG PRIOK (IDTPP)  |  KAPASITAS FCL &amp; LCL  |  WHATSAPP: +62 859-5459-7029
+    </text>
+    <text x="1020" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#34d399" text-anchor="end">
+      cvberkatmandiri.vercel.app
+    </text>
+  </g>
+</svg>

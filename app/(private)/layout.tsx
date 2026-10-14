@@ -7,18 +7,18 @@ export default function PrivateLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Sidebar tetap fixed */}
+    <div className="min-h-screen bg-transparent relative selection:bg-emerald-500/20 selection:text-emerald-900">
+      {/* Sidebar macOS Sonoma Liquid Glass Style */}
       <SidebarPrivate />
 
-      <div className="md:pl-64 flex flex-col min-h-screen">
+      <div className="md:pl-72 flex flex-col min-h-screen relative z-10 transition-all duration-300">
         
-        {/* Main content akan memenuhi sisa ruang (flex-grow) */}
-        <main className="flex-grow">
+        {/* Main Content Area */}
+        <main className="flex-grow p-4 sm:p-6 lg:p-8">
           {children}
         </main>
 
-        {/* Footer akan selalu berada di bawah karena flex-grow pada main */}
+        {/* Footer */}
         <FooterPrivate />
       </div>
     </div>

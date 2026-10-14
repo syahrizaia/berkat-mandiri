@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/lib/prisma";
 import InventoryClient from "@/components/InventoryClient";
+
+export const dynamic = "force-dynamic";
 
 export default async function InventoryPage() {
   const bags = await prisma.bagType.findMany({

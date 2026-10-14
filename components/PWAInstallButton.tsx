@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, X } from "lucide-react";
+import { Download, X, Sparkles } from "lucide-react";
 
 export default function PWAInstallButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -11,17 +11,13 @@ export default function PWAInstallButton() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Cegah browser menampilkan prompt bawaan secara otomatis
       e.preventDefault();
-      // Simpan event agar bisa dipicu nanti via tombol
       setDeferredPrompt(e);
-      // Munculkan tombol hanya jika belum terinstal
       setIsVisible(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // Jika aplikasi dibuka sudah dalam mode PWA (Standalone), sembunyikan tombol
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsVisible(false);
     }
@@ -34,10 +30,7 @@ export default function PWAInstallButton() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
 
-    // Munculkan prompt instalasi bawaan browser (Android/Chrome)
     deferredPrompt.prompt();
-
-    // Tunggu jawaban dari user (Apakah mereka klik 'Install' atau 'Cancel')
     const { outcome } = await deferredPrompt.userChoice;
     
     if (outcome === "accepted") {
@@ -46,34 +39,37 @@ export default function PWAInstallButton() {
     }
   };
 
-  // Jika tidak memenuhi syarat install atau di-dismiss, jangan render apapun
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden block">
-      <div className="bg-slate-900 text-white p-4 rounded-xl shadow-2xl flex items-center justify-between border border-slate-800 animate-fade-in-up">
+    <div className="fixed bottom-5 left-4 right-4 z-50 md:hidden block hardware-accel">
+      <div className="liquid-glass-dark text-white p-3.5 sm:p-4 rounded-3xl shadow-2xl flex items-center justify-between border border-white/20 backdrop-blur-2xl">
         <div className="flex items-center gap-3">
-          <div className="bg-emerald-600 p-2 rounded-lg text-white">
-            <Download size={20} />
+          <div className="bg-gradient-to-tr from-emerald-500 to-teal-400 p-2.5 rounded-2xl text-white shadow-md shadow-emerald-500/25 shrink-0">
+            <Download className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm font-bold">Gunakan Aplikasi Lebih Cepat</p>
-            <p className="text-xs text-slate-400">Install PWA CV Berkat Mandiri</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs sm:text-sm font-bold text-white">Akses Cepat Web App</p>
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+            </div>
+            <p className="text-[11px] text-slate-300">Install aplikasi CV Berkat Mandiri</p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
           <button
             onClick={handleInstallClick}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
+            className="liquid-sheen bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-md border border-white/20"
           >
             Install
           </button>
           <button 
             onClick={() => setIsVisible(false)}
-            className="text-slate-400 hover:text-white p-1"
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition"
+            aria-label="Tutup Banner Install"
           >
-            <X size={18} />
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Download } from "lucide-react";
+import { Printer, Download, Sparkles } from "lucide-react";
 
 export default function ExportPDFButton() {
   const handleExport = () => {
@@ -11,9 +11,10 @@ export default function ExportPDFButton() {
   return (
     <button 
       onClick={handleExport}
-      className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-slate-800 transition print:hidden print:shadow-none break-inside-avoid"
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all print:hidden"
     >
-      <Download className="w-4 h-4" /> Export PDF
+      <Printer className="w-4 h-4" />
+      <span>Cetak / Ekspor PDF</span>
     </button>
   );
 }
