@@ -28,7 +28,8 @@ export async function PUT(
 
     return NextResponse.json({ success: true, data: updatedInventory });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("[INVENTORY_PUT_ERROR]:", error);
+    return NextResponse.json({ success: false, error: "Gagal memperbarui data inventori." }, { status: 500 });
   }
 }
 
@@ -47,6 +48,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Barang berhasil dihapus." });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("[INVENTORY_DELETE_ERROR]:", error);
+    return NextResponse.json({ success: false, error: "Gagal menghapus data inventori." }, { status: 500 });
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -8,6 +7,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, FileText, Truck, ShieldCheck, Coins, Package, MapPin, User, Hash, Sparkles } from "lucide-react";
 import { SaleWithRelations } from "../page";
+
+import { createSaleAction, updateSaleAction } from "../actions";
 
 interface ModalProps {
   isOpen: boolean;
@@ -33,11 +34,11 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
     bagTypeId: "",
     quantity: 0,
     pricePerPiece: 0,
-    paymentStatus: "PENDING",
+    paymentStatus: "PENDING" as "PENDING" | "LUNAS",
     driverName: "",
     plateNumber: "",
     deliveryAddress: "",
-    deliveryStatus: "DIPROSES"
+    deliveryStatus: "DIPROSES" as "DIPROSES" | "DIKIRIM" | "DITERIMA"
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,23 +68,20 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const url = editingSale ? `/api/admin/sales/${editingSale.id}` : `/api/admin/sales`;
-    const method = editingSale ? "PUT" : "POST";
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
-      if (response.ok) {
+      const res = editingSale
+        ? await updateSaleAction(editingSale.id, formData)
+        : await createSaleAction(formData);
+
+      if (res.success) {
         refreshData();
         onClose();
       } else {
-        alert("Gagal memproses data ke database. Silakan periksa kelengkapan form.");
+        alert(res.error || "Gagal memproses data ke database. Silakan periksa kelengkapan form.");
       }
-    } catch (error) {
-      alert("Terjadi kendala jaringan saat menghubungi database.");
+    } catch {
+      alert("Terjadi kendala saat memproses data transaksi.");
     } finally {
       setIsSubmitting(false);
     }
@@ -247,7 +245,7 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
                   </label>
                   <select
                     value={formData.paymentStatus}
-                    onChange={e => setFormData({ ...formData, paymentStatus: e.target.value })}
+                    onChange={e => setFormData({ ...formData, paymentStatus: e.target.value as "LUNAS" | "PENDING" })}
                     className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-bold"
                   >
                     <option value="PENDING">PENDING (Piutang Usaha / Menunggu Pelunasan)</option>
@@ -316,7 +314,7 @@ export default function SaleModalForm({ onClose, editingSale, bagTypes, refreshD
                   </label>
                   <select
                     value={formData.deliveryStatus}
-                    onChange={e => setFormData({ ...formData, deliveryStatus: e.target.value })}
+                    onChange={e => setFormData({ ...formData, deliveryStatus: e.target.value as "DIPROSES" | "DIKIRIM" | "DITERIMA" })}
                     className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all font-bold"
                   >
                     <option value="DIPROSES">DIPROSES GUDANG (Packing & Loading)</option>

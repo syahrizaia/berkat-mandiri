@@ -21,6 +21,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: newEmployee }, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("[EMPLOYEE_POST_ERROR]:", error);
+    return NextResponse.json({ success: false, error: "Gagal menyimpan data karyawan." }, { status: 500 });
   }
 }

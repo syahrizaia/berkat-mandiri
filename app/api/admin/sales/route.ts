@@ -142,8 +142,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || "Gagal memuat data",
-        prismaMessage: error.meta?.message || null // Mengintip error bawaan prisma
+        error: "Terjadi kesalahan internal server saat memproses data penjualan."
       },
       { status: 500 }
     );

@@ -1,22 +1,26 @@
 import { NextResponse } from "next/server";
+import { submitRfqAction } from "@/app/actions/rfq";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
-    // Sementara, kita cetak dulu datanya di terminal server
-    console.log("Data RFQ Masuk (Tanpa DB):", body);
+    const result = await submitRfqAction(body);
 
-    // Di sini nanti kita bisa pasang logika pengiriman Email / WhatsApp
-    return NextResponse.json({ 
-      success: true, 
-      message: "Data RFQ berhasil diterima!" 
-    });
-    
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        message: result.message || "Data RFQ berhasil diterima!",
+      });
+    }
+
+    return NextResponse.json(
+      { success: false, error: result.error || "Gagal memproses data RFQ." },
+      { status: 400 }
+    );
   } catch {
-    return NextResponse.json({ 
-      success: false, 
-      error: "Gagal memproses data" 
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Permintaan data tidak valid." },
+      { status: 400 }
+    );
   }
 }

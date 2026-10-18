@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import EmployeeModalForm from "./EmployeeModalForm";
 import Link from "next/link";
+import { deleteEmployeeAction } from "@/app/(private)/employees/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -45,14 +46,14 @@ export default function EmployeeClient({ initialData }: { initialData: any[] }) 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Apakah Anda yakin ingin menghapus karyawan "${name}"? Semua log kerja borongan terkait akan ikut terhapus.`)) {
       try {
-        const res = await fetch(`/api/admin/employees/${id}`, { method: "DELETE" });
-        if (res.ok) {
+        const res = await deleteEmployeeAction(id);
+        if (res.success) {
           router.refresh();
         } else {
-          alert("Gagal menghapus data karyawan.");
+          alert(res.error || "Gagal menghapus data karyawan.");
         }
       } catch (err) {
-        alert("Terjadi kesalahan koneksi.");
+        alert("Terjadi kesalahan sistem.");
       }
     }
   };

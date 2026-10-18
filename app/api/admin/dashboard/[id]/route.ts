@@ -105,7 +105,7 @@ export async function PUT(
   } catch (error: any) {
     console.error(`Gagal memperbarui data transaksi di Neon PostgreSQL:`, error);
     return NextResponse.json(
-      { success: false, error: error.message || "Terjadi kesalahan internal server saat memperbarui data." },
+      { success: false, error: "Terjadi kesalahan internal server saat memperbarui data." },
       { status: 500 }
     );
   }
@@ -138,7 +138,7 @@ export async function DELETE(
   } catch (error: any) {
     console.error("Gagal menghapus data:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Gagal menghapus entri data." },
+      { success: false, error: "Gagal menghapus entri data." },
       { status: 500 }
     );
   }

@@ -353,7 +353,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("🚨 CRITICAL DASHBOARD API ERROR (GET):", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Internal Server Error" }, 
+      { success: false, message: "Terjadi kesalahan internal server saat memuat data dashboard." }, 
       { status: 500 }
     );
   }
@@ -460,7 +460,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("🚨 CRITICAL DASHBOARD API ERROR (POST):", error);
     return NextResponse.json(
-      { success: false, error: error.message || "Terjadi kesalahan internal server saat menyimpan data." },
+      { success: false, error: "Terjadi kesalahan internal server saat menyimpan data." },
       { status: 500 }
     );
   }

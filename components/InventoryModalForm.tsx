@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Package, Hash, Layers, Coins, Sparkles, CheckCircle2 } from "lucide-react";
+import { createInventoryAction, updateInventoryAction } from "@/app/(private)/inventory/actions";
 
 interface ModalProps {
   isOpen: boolean;
@@ -57,24 +58,19 @@ export default function InventoryModalForm({ isOpen, onClose, editingBag }: Moda
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const url = editingBag ? `/api/admin/inventory/${editingBag.id}` : `/api/admin/inventory`;
-    const method = editingBag ? "PUT" : "POST";
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const res = editingBag
+        ? await updateInventoryAction(editingBag.id, formData)
+        : await createInventoryAction(formData);
 
-      if (response.ok) {
+      if (res.success) {
         onClose();
         router.refresh();
       } else {
-        const errData = await response.json();
-        alert(`Gagal menyimpan data: ${errData.error || "Terjadi kesalahan"}`);
+        alert(`Gagal menyimpan data: ${res.error || "Terjadi kesalahan"}`);
       }
-    } catch (error) {
+    } catch {
       alert("Gagal memproses data ke database Cloud.");
     } finally {
       setIsSubmitting(false);

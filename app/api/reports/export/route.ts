@@ -106,6 +106,7 @@ export async function GET() {
     });
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[REPORT_EXPORT_ERROR]:", error);
+    return NextResponse.json({ error: "Gagal memproses ekspor laporan Excel." }, { status: 500 });
   }
 }

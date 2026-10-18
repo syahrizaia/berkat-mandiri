@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -7,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Phone, Sparkles, UserCheck } from "lucide-react";
+import { createEmployeeAction, updateEmployeeAction } from "@/app/(private)/employees/actions";
 
 interface ModalProps {
   isOpen: boolean;
@@ -35,24 +35,19 @@ export default function EmployeeModalForm({ isOpen, onClose, editingEmployee }: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const url = editingEmployee ? `/api/admin/employees/${editingEmployee.id}` : `/api/admin/employees`;
-    const method = editingEmployee ? "PUT" : "POST";
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const res = editingEmployee
+        ? await updateEmployeeAction(editingEmployee.id, formData)
+        : await createEmployeeAction(formData);
 
-      if (response.ok) {
+      if (res.success) {
         onClose();
         router.refresh();
       } else {
-        const err = await response.json();
-        alert(`Gagal memproses data: ${err.error || "Terjadi kesalahan sistem"}`);
+        alert(res.error || "Gagal memproses data karyawan.");
       }
-    } catch (error) {
+    } catch {
       alert("Gagal terhubung ke server database.");
     } finally {
       setIsSubmitting(false);

@@ -20,6 +20,7 @@ import {
   Layers
 } from "lucide-react";
 import InventoryModalForm from "./InventoryModalForm";
+import { deleteInventoryAction } from "@/app/(private)/inventory/actions";
 
 export default function InventoryClient({ initialData }: { initialData: any[] }) {
   const router = useRouter();
@@ -50,11 +51,11 @@ export default function InventoryClient({ initialData }: { initialData: any[] })
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Apakah Anda yakin ingin menghapus jenis karung "${name}"? Semua log operasional terkait akan ikut terhapus.`)) {
       try {
-        const res = await fetch(`/api/admin/inventory/${id}`, { method: "DELETE" });
-        if (res.ok) {
+        const res = await deleteInventoryAction(id);
+        if (res.success) {
           router.refresh();
         } else {
-          alert("Gagal menghapus barang.");
+          alert(res.error || "Gagal menghapus barang.");
         }
       } catch (err) {
         console.error(err);

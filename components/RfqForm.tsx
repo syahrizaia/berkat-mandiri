@@ -2,29 +2,36 @@
 
 import React, { useState } from "react";
 import { Send, CheckCircle2, AlertCircle, FileText, Loader2 } from "lucide-react";
+import { submitRfqAction } from "@/app/actions/rfq";
 
 export default function RfqForm({ products }: { products: { id: string; name: string }[] }) {
   const [formData, setFormData] = useState({
-    companyName: "", email: "", country: "", quantity: "", productId: "", notes: ""
+    companyName: "", 
+    email: "", 
+    country: "", 
+    quantity: "", 
+    productId: "", 
+    notes: "",
+    website_hp: "" // Invisible honeypot
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
+    setErrorMessage("");
     try {
-      const res = await fetch("/api/rfq", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
+      const res = await submitRfqAction(formData);
+      if (res.success) {
         setStatus("success");
-        setFormData({ companyName: "", email: "", country: "", quantity: "", productId: "", notes: "" });
+        setFormData({ companyName: "", email: "", country: "", quantity: "", productId: "", notes: "", website_hp: "" });
       } else {
+        setErrorMessage(res.error || "Terjadi kesalahan saat memproses RFQ.");
         setStatus("error");
       }
     } catch {
+      setErrorMessage("Terjadi gangguan jaringan saat memproses RFQ.");
       setStatus("error");
     }
   };
@@ -50,6 +57,18 @@ export default function RfqForm({ products }: { products: { id: string; name: st
             Dapatkan kalkulasi harga grosir komersial dan dokumen proforma invoice resmi dari tim kami.
           </p>
         </div>
+
+        {/* Anti-Bot Invisible Honeypot Field */}
+        <input 
+          type="text" 
+          name="website_hp" 
+          value={formData.website_hp} 
+          onChange={e => setFormData({...formData, website_hp: e.target.value})} 
+          style={{ position: "absolute", opacity: 0, zIndex: -1, pointerEvents: "none", width: 0, height: 0 }} 
+          tabIndex={-1} 
+          autoComplete="off" 
+          aria-hidden="true" 
+        />
 
         {/* Company Name */}
         <div className="space-y-1.5">
@@ -174,7 +193,7 @@ export default function RfqForm({ products }: { products: { id: string; name: st
         {status === "error" && (
           <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-xs text-rose-800 animate-fade-in">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            <span>Terjadi kesalahan saat memproses RFQ. Silakan periksa kembali isian formulir Anda.</span>
+            <span>{errorMessage || "Terjadi kesalahan saat memproses RFQ. Silakan periksa kembali isian formulir Anda."}</span>
           </div>
         )}
 

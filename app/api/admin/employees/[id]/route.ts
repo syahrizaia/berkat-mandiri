@@ -22,7 +22,8 @@ export async function PUT(
 
     return NextResponse.json({ success: true, data: updatedEmployee });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("[EMPLOYEE_PUT_ERROR]:", error);
+    return NextResponse.json({ success: false, error: "Gagal memperbarui data karyawan." }, { status: 500 });
   }
 }
 
@@ -43,6 +44,7 @@ export async function DELETE(
     
     return NextResponse.json({ success: true, message: "Karyawan berhasil dihapus." });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("[EMPLOYEE_DELETE_ERROR]:", error);
+    return NextResponse.json({ success: false, error: "Gagal menghapus data karyawan." }, { status: 500 });
   }
 }
